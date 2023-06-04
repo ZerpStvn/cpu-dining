@@ -1,9 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cpudining/admin/homde.admin.dart';
-import 'package:cpudining/components/template/auth.signup.dart';
-import 'package:cpudining/model/user.class.dart';
-import 'package:cpudining/pages/homepage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../packages/exports.dart';
 
 UsersClass currentuser = UsersClass();

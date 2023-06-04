@@ -1,7 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cpudining/model/user.class.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
 import '../../packages/exports.dart';
 
 class SignupController extends StatefulWidget {
