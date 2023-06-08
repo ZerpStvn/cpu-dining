@@ -19,6 +19,7 @@ class _SignupControllerState extends State<SignupController> {
   bool passwordChar = true;
   bool unchecked = false;
   String? errormessage;
+  bool isloading = false;
 
   @override
   void dispose() {
@@ -236,16 +237,21 @@ class _SignupControllerState extends State<SignupController> {
             height: 10,
           ),
           Center(
-            child: TextButton(
-                onPressed: () => Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: ((context) => const AuthLogin())),
-                    (route) => false),
-                child: const MainText(
-                    title: "Already have an Account? Login",
-                    size: 12,
-                    color: Colors.blueAccent)),
+            child: isloading
+                ? const CircularProgressIndicator(
+                    backgroundColor: Colors.transparent,
+                    color: Colors.amber,
+                  )
+                : TextButton(
+                    onPressed: () => Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: ((context) => const AuthLogin())),
+                        (route) => false),
+                    child: const MainText(
+                        title: "Already have an Account? Login",
+                        size: 12,
+                        color: Colors.blueAccent)),
           )
         ],
       ),
@@ -253,8 +259,8 @@ class _SignupControllerState extends State<SignupController> {
   }
 
   void signupFireStore() async {
+    final navigator = Navigator.of(context);
     User? currentUser = FirebaseAuth.instance.currentUser;
-
     users.uid = currentUser!.uid;
     users.username = username.text;
     users.userschID = schlID.text;
@@ -270,9 +276,15 @@ class _SignupControllerState extends State<SignupController> {
         .set(users.tomap());
 
     debugPrint("Account Created");
+    navigator.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const AuthLogin()),
+        (route) => false);
   }
 
   void signUP(String email, String password) async {
+    setState(() {
+      isloading = true;
+    });
     if (formkey.currentState!.validate()) {
       try {
         await FirebaseAuth.instance
@@ -303,5 +315,8 @@ class _SignupControllerState extends State<SignupController> {
         }
       }
     }
+    setState(() {
+      isloading = false;
+    });
   }
 }

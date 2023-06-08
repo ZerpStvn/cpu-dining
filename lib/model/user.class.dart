@@ -40,7 +40,7 @@ class UsersClass {
       'usercourse': usercourse,
       'useremail': useremail,
       'userpassword': userpassword,
-      'userrole': 1,
+      'userrole': 0,
     };
   }
 }
