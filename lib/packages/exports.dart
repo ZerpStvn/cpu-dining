@@ -1,7 +1,6 @@
 export 'package:cpudining/components/template/auth.login.dart';
 export 'package:cpudining/constant/fontstyle.dart';
 export 'package:flutter/material.dart';
-export 'package:google_fonts/google_fonts.dart';
 export '../components/template/orders.admin.dart';
 export '../components/template/product.admin.dart';
 export 'package:cpudining/components/controller/login.controller.dart';
@@ -12,5 +11,5 @@ export 'package:cpudining/model/user.class.dart';
 export 'package:cpudining/pages/homepage.dart';
 export 'package:firebase_auth/firebase_auth.dart';
 export '../components/component/Admin.drawer.component.dart';
-export 'package:cpudining/components/controller/orders.controller.dart';
+export 'package:cpudining/components/controller/product.controller.dart';
 export 'package:cpudining/components/component/Cardorder.component.dart';

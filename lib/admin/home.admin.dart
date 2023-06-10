@@ -11,6 +11,7 @@ class _AdminHomepageState extends State<AdminHomepage>
     with TickerProviderStateMixin {
   final scaffoldkey = GlobalKey<ScaffoldState>();
   late TabController tabs;
+  bool isloading = false;
 
   @override
   void initState() {
@@ -37,7 +38,7 @@ class _AdminHomepageState extends State<AdminHomepage>
               automaticallyImplyLeading: false,
               title: const Center(
                 child: MainText(
-                  title: "CPU-Dining (Admin)",
+                  title: "CPU-Dining",
                   size: 14,
                   color: Colors.amber,
                   fnt: FontWeight.bold,
@@ -50,8 +51,14 @@ class _AdminHomepageState extends State<AdminHomepage>
                 },
               ),
               actions: [
+                IconButton(onPressed: () {}, icon: const Icon(Icons.qr_code)),
                 IconButton(
-                    onPressed: () {}, icon: const Icon(Icons.notifications))
+                    onPressed: () {}, icon: const Icon(Icons.notifications)),
+                IconButton(
+                    onPressed: () {
+                      isloading ? null : logout();
+                    },
+                    icon: const Icon(Icons.logout)),
               ],
             ),
             body: SingleChildScrollView(
@@ -92,5 +99,19 @@ class _AdminHomepageState extends State<AdminHomepage>
             )),
       ),
     );
+  }
+
+  void logout() async {
+    final navigator = Navigator.of(context);
+    setState(() {
+      isloading = true;
+    });
+    await FirebaseAuth.instance.signOut();
+    setState(() {
+      isloading = false;
+    });
+    navigator.pushAndRemoveUntil(
+        MaterialPageRoute(builder: ((context) => const AuthLogin())),
+        (route) => false);
   }
 }

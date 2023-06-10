@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 String? text;
 double? size;
@@ -29,7 +28,7 @@ class MainText extends StatelessWidget {
     return Text(
       title,
       textAlign: align,
-      style: GoogleFonts.montserrat(
+      style: TextStyle(
         fontSize: size,
         fontWeight: fnt,
         color: color,

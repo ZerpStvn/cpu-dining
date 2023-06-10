@@ -5,9 +5,11 @@ class Products {
   int? quantity;
   String? description;
   String? imagelink;
+  bool? orderstatus;
 
   Products(
-      {this.prdID,
+      {this.orderstatus,
+      this.prdID,
       this.name,
       this.price,
       this.quantity,
@@ -16,6 +18,7 @@ class Products {
 
   factory Products.fromdocument(map) {
     return Products(
+      orderstatus: map['orderstatus'],
       prdID: map['prdID'],
       name: map['name'],
       price: map['price'],
@@ -26,6 +29,7 @@ class Products {
   }
   Map<String, dynamic> tomap() {
     return {
+      'orderstatus': orderstatus,
       'prdID': prdID,
       'name': name,
       'price': price,

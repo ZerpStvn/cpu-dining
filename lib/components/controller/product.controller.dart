@@ -1,8 +1,9 @@
 import 'dart:io';
+import 'dart:io' as io;
 import 'package:cpudining/model/product.class.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
-
 import '../../packages/exports.dart';
 
 class OrdersForm extends StatefulWidget {
@@ -24,7 +25,8 @@ class _OrdersFormState extends State<OrdersForm> {
   bool isloading = false;
 
   handlepickImage() async {
-    XFile? image = await _pick.pickImage(source: ImageSource.gallery);
+    XFile? image =
+        await _pick.pickImage(source: ImageSource.gallery, imageQuality: 44);
     setState(() {
       imagePath = image;
     });
@@ -108,8 +110,8 @@ class _OrdersFormState extends State<OrdersForm> {
                       },
                       decoration: InputDecoration(
                         labelText: 'Name',
-                        labelStyle: GoogleFonts.montserrat(
-                            fontSize: 14, color: Colors.grey),
+                        labelStyle:
+                            const TextStyle(fontSize: 14, color: Colors.grey),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0)),
                       ),
@@ -132,7 +134,7 @@ class _OrdersFormState extends State<OrdersForm> {
                             },
                             decoration: InputDecoration(
                               labelText: 'Price',
-                              labelStyle: GoogleFonts.montserrat(
+                              labelStyle: const TextStyle(
                                   fontSize: 14, color: Colors.grey),
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0)),
@@ -155,7 +157,7 @@ class _OrdersFormState extends State<OrdersForm> {
                             },
                             decoration: InputDecoration(
                               labelText: 'Quantity',
-                              labelStyle: GoogleFonts.montserrat(
+                              labelStyle: const TextStyle(
                                   fontSize: 14, color: Colors.grey),
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0)),
@@ -182,8 +184,8 @@ class _OrdersFormState extends State<OrdersForm> {
                       },
                       decoration: InputDecoration(
                         labelText: 'Description',
-                        labelStyle: GoogleFonts.montserrat(
-                            fontSize: 14, color: Colors.grey),
+                        labelStyle:
+                            const TextStyle(fontSize: 14, color: Colors.grey),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0)),
                       ),
@@ -223,23 +225,46 @@ class _OrdersFormState extends State<OrdersForm> {
     );
   }
 
+  Future<String> uploadImage() async {
+    final metadata = SettableMetadata(
+      contentType: 'image/jpeg',
+      customMetadata: {'picked-file-path': imagePath!.path},
+    );
+    UploadTask uploadTask = FirebaseStorage.instance
+        .ref()
+        .child("item_$uniqID.jpg")
+        .putFile(io.File(imagePath!.path), metadata);
+    TaskSnapshot taskSnapshot = await uploadTask;
+    String mediaURL = await taskSnapshot.ref.getDownloadURL();
+    return mediaURL;
+  }
+
+  snackbar(String? title) {
+    final snack = SnackBar(content: Text(title!));
+    ScaffoldMessenger.of(context).showSnackBar(snack);
+  }
+
   void createpost() async {
     if (formkey.currentState!.validate()) {
       setState(() {
         isloading = true;
       });
+      String photourl = await uploadImage();
       Products prd = Products();
+      prd.prdID = uniqID;
       prd.name = productname.text;
       prd.price = double.parse(price.text);
       prd.quantity = int.parse(quantity.text);
       prd.description = description.text;
-      prd.imagelink = "";
-
+      prd.imagelink = photourl;
+      prd.orderstatus = true;
+      debugPrint(photourl);
       await FirebaseFirestore.instance
           .collection('Products')
           .doc(uniqID)
           .set(prd.tomap())
           .then((value) => setState(() {
+                snackbar("New Product Added");
                 uniqID;
                 isloading = false;
               }));

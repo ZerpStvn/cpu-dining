@@ -54,8 +54,7 @@ class _SignupControllerState extends State<SignupController> {
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.person),
               labelText: 'Name',
-              labelStyle:
-                  GoogleFonts.montserrat(fontSize: 14, color: Colors.grey),
+              labelStyle: const TextStyle(fontSize: 14, color: Colors.grey),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
             ),
@@ -76,8 +75,7 @@ class _SignupControllerState extends State<SignupController> {
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.school),
               labelText: 'University ID',
-              labelStyle:
-                  GoogleFonts.montserrat(fontSize: 14, color: Colors.grey),
+              labelStyle: const TextStyle(fontSize: 14, color: Colors.grey),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
             ),
@@ -120,8 +118,8 @@ class _SignupControllerState extends State<SignupController> {
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.school_sharp),
                           labelText: 'Department',
-                          labelStyle: GoogleFonts.montserrat(
-                              fontSize: 14, color: Colors.grey),
+                          labelStyle:
+                              const TextStyle(fontSize: 14, color: Colors.grey),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0)),
                         ),
@@ -145,8 +143,8 @@ class _SignupControllerState extends State<SignupController> {
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.school_sharp),
                           labelText: 'Course',
-                          labelStyle: GoogleFonts.montserrat(
-                              fontSize: 14, color: Colors.grey),
+                          labelStyle:
+                              const TextStyle(fontSize: 14, color: Colors.grey),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0)),
                         ),
@@ -170,8 +168,7 @@ class _SignupControllerState extends State<SignupController> {
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.email),
               labelText: 'Email',
-              labelStyle:
-                  GoogleFonts.montserrat(fontSize: 14, color: Colors.grey),
+              labelStyle: const TextStyle(fontSize: 14, color: Colors.grey),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
             ),
@@ -208,8 +205,7 @@ class _SignupControllerState extends State<SignupController> {
                         )),
               prefixIcon: const Icon(Icons.key),
               labelText: 'password',
-              labelStyle:
-                  GoogleFonts.montserrat(fontSize: 14, color: Colors.grey),
+              labelStyle: const TextStyle(fontSize: 14, color: Colors.grey),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
             ),

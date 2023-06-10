@@ -45,8 +45,7 @@ class _LoginControllerState extends State<LoginController> {
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.email),
               labelText: 'Email',
-              labelStyle:
-                  GoogleFonts.montserrat(fontSize: 14, color: Colors.grey),
+              labelStyle: const TextStyle(fontSize: 14, color: Colors.grey),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
             ),
@@ -83,8 +82,7 @@ class _LoginControllerState extends State<LoginController> {
                         )),
               prefixIcon: const Icon(Icons.key),
               labelText: 'password',
-              labelStyle:
-                  GoogleFonts.montserrat(fontSize: 14, color: Colors.grey),
+              labelStyle: const TextStyle(fontSize: 14, color: Colors.grey),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
             ),
