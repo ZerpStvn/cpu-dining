@@ -56,7 +56,7 @@ class _HomepgeState extends State<Homepge> {
                   ListView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
-                      itemCount: product.length,
+                      itemCount: 3,
                       itemBuilder: ((context, index) {
                         return ListViewOrderComponent(
                           prd: product[index] as Products,
