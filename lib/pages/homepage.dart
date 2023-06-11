@@ -1,3 +1,6 @@
+import 'package:cpudining/components/component/ListOrder.user.dart';
+import 'package:cpudining/components/component/listview.item.dart';
+import 'package:cpudining/model/product.class.dart';
 import 'package:cpudining/packages/exports.dart';
 
 class Homepge extends StatefulWidget {
@@ -8,17 +11,81 @@ class Homepge extends StatefulWidget {
 }
 
 class _HomepgeState extends State<Homepge> {
+  List product = [];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.amber,
-        body: Column(
-          children: [
-            const SizedBox(
-              height: 100,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            onPressed: () {},
+            icon: const DrawerButtonIcon(),
+          ),
+          title: const Center(
+            child: MainText(
+              title: "CPU-Dining",
+              size: 14,
+              fnt: FontWeight.bold,
+              color: Colors.amber,
             ),
-            Text("${currentuser.userdepartment}")
+          ),
+          actions: [
+            IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.local_grocery_store_rounded))
           ],
-        ));
+        ),
+        body: RefreshIndicator(
+          onRefresh: onRefreshitem,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const ListViewItems(),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const MainText(
+                      title: "Order now", size: 12, color: Colors.black),
+                  ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: product.length,
+                      itemBuilder: ((context, index) {
+                        return ListViewOrderComponent(
+                          prd: product[index] as Products,
+                        );
+                      })),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    onRefreshitem();
+    super.initState();
+  }
+
+  Future onRefreshitem() async {
+    final data = await FirebaseFirestore.instance.collection('Products').get();
+
+    if (mounted) {
+      setState(() {
+        product = List.from(data.docs.map((doc) => Products.fromdocument(doc)));
+      });
+    } else {
+      dispose();
+    }
   }
 }
