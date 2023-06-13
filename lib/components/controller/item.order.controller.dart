@@ -12,11 +12,15 @@ class ItemController extends StatefulWidget {
 }
 
 class _ItemControllerState extends State<ItemController> {
-  int qnty = 0;
+  int qnty = 1;
+  double? price;
+  double? totalprice;
 
   @override
   void initState() {
     qnty;
+    totalprice = price;
+
     super.initState();
   }
 
@@ -27,6 +31,8 @@ class _ItemControllerState extends State<ItemController> {
 
   @override
   Widget build(BuildContext context) {
+    price = double.parse("${widget.prd.price}");
+    totalprice ??= price;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -91,7 +97,9 @@ class _ItemControllerState extends State<ItemController> {
                               fnt: FontWeight.bold,
                               color: Colors.black),
                           MainText(
-                              title: "Php${widget.prd.price}0",
+                              title: totalprice == null
+                                  ? "Php ${price}0"
+                                  : "Php ${totalprice}0",
                               size: 14,
                               fnt: FontWeight.normal,
                               color: Colors.grey),
@@ -102,10 +110,11 @@ class _ItemControllerState extends State<ItemController> {
                         child: Row(children: [
                           IconButton(
                               onPressed: () {
-                                qnty == 0
+                                qnty == 1
                                     ? null
                                     : setState(() {
                                         --qnty;
+                                        totalprice = price! * qnty;
                                       });
                               },
                               icon: const Icon(Icons.horizontal_rule)),
@@ -120,6 +129,8 @@ class _ItemControllerState extends State<ItemController> {
                                     ? null
                                     : setState(() {
                                         ++qnty;
+                                        totalprice = price! * qnty;
+                                        debugPrint("$price");
                                       });
                               },
                               icon: const Icon(Icons.add)),
@@ -235,12 +246,17 @@ class _ItemControllerState extends State<ItemController> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          CheckedOut(prd: widget.prd)));
+                                      builder: (context) => CheckedOut(
+                                            prd: widget.prd,
+                                            totalprice: totalprice!,
+                                            qnty: qnty,
+                                          )));
                             }
                           },
                           child: const MainText(
-                              title: "Purchase", size: 12, color: Colors.white),
+                              title: "Purchase",
+                              size: 12,
+                              color: Color.fromARGB(255, 20, 15, 15)),
                         ),
                       ),
                     ),

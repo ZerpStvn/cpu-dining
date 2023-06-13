@@ -2,6 +2,7 @@ import 'package:cpudining/components/component/ListOrder.user.dart';
 import 'package:cpudining/components/component/listview.item.dart';
 import 'package:cpudining/model/product.class.dart';
 import 'package:cpudining/packages/exports.dart';
+import 'package:cpudining/pages/orders.page.dart';
 
 class Homepge extends StatefulWidget {
   const Homepge({super.key});
@@ -11,17 +12,24 @@ class Homepge extends StatefulWidget {
 }
 
 class _HomepgeState extends State<Homepge> {
+  final scaffoldkey = GlobalKey<ScaffoldState>();
   List product = [];
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Scaffold(
+        drawer: const SafeArea(
+          child: AdminDrawerComponent(),
+        ),
+        key: scaffoldkey,
         backgroundColor: Colors.white,
         appBar: AppBar(
           automaticallyImplyLeading: false,
           leading: IconButton(
-            onPressed: () {},
+            onPressed: () {
+              scaffoldkey.currentState!.openDrawer();
+            },
             icon: const DrawerButtonIcon(),
           ),
           title: const Center(
@@ -35,7 +43,15 @@ class _HomepgeState extends State<Homepge> {
           actions: [
             IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.local_grocery_store_rounded))
+                icon: const Icon(Icons.local_grocery_store_rounded)),
+            IconButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: ((context) => const OrderPage())));
+                },
+                icon: const Icon(Icons.notifications)),
           ],
         ),
         body: RefreshIndicator(
@@ -56,7 +72,7 @@ class _HomepgeState extends State<Homepge> {
                   ListView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
-                      itemCount: 3,
+                      itemCount: product.length,
                       itemBuilder: ((context, index) {
                         return ListViewOrderComponent(
                           prd: product[index] as Products,

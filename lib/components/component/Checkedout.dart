@@ -1,22 +1,39 @@
-import 'package:cpudining/constant/fontstyle.dart';
+import 'package:cpudining/components/controller/qr.order.dart';
+import 'package:cpudining/model/id.class.dart';
+import 'package:cpudining/model/orders.class.dart';
 import 'package:cpudining/model/product.class.dart';
-import 'package:flutter/material.dart';
+import 'package:cpudining/packages/exports.dart';
 
 class CheckedOut extends StatefulWidget {
   final Products prd;
-  const CheckedOut({super.key, required this.prd});
+  final int qnty;
+  final double totalprice;
+  const CheckedOut(
+      {super.key,
+      required this.prd,
+      required this.totalprice,
+      required this.qnty});
 
   @override
   State<CheckedOut> createState() => _CheckedOutState();
 }
 
 class _CheckedOutState extends State<CheckedOut> {
+  UniqueID uniqID = UniqueID();
+  bool isloading = false;
+  bool ischecked = false;
+
   snackbar(String? title) {
     final snack = SnackBar(content: Text(title!));
     ScaffoldMessenger.of(context).showSnackBar(snack);
   }
 
-  bool ischecked = false;
+  @override
+  void initState() {
+    uniqID.generateUniqueId();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,7 +75,7 @@ class _CheckedOutState extends State<CheckedOut> {
                               fnt: FontWeight.bold,
                               color: Colors.black),
                           MainText(
-                              title: "Php ${widget.prd.price}0",
+                              title: "Php ${widget.totalprice}0",
                               size: 13,
                               fnt: FontWeight.bold,
                               color: Colors.grey),
@@ -87,7 +104,7 @@ class _CheckedOutState extends State<CheckedOut> {
                 title: const MainText(
                     title: "Gcash", size: 14, color: Colors.black),
                 subtitle: const MainText(
-                    title: "Comming soon", size: 10, color: Colors.grey),
+                    title: "Coming soon", size: 10, color: Colors.grey),
                 leading: SizedBox(
                   width: 30,
                   height: 30,
@@ -107,7 +124,7 @@ class _CheckedOutState extends State<CheckedOut> {
                 title: const MainText(
                     title: "Debit/Credit Card", size: 14, color: Colors.black),
                 subtitle: const MainText(
-                    title: "Comming soon", size: 10, color: Colors.grey),
+                    title: "Coming soon", size: 10, color: Colors.grey),
                 leading: SizedBox(
                   width: 50,
                   height: 30,
@@ -174,19 +191,77 @@ class _CheckedOutState extends State<CheckedOut> {
     await showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: const Text("Confirm Order"),
-            content: const MainText(
-                title: "To continue please confirm your order if it is correct",
-                size: 12,
-                color: Colors.black),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("Cancel")),
-              TextButton(onPressed: () {}, child: const Text("Confirm")),
-            ],
-          );
+          return isloading
+              ? const Center(child: CircularProgressIndicator())
+              : AlertDialog(
+                  title: const Text("Confirm Order"),
+                  content: const MainText(
+                      title:
+                          "To continue please confirm your order if it is correct",
+                      size: 12,
+                      color: Colors.black),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("Cancel")),
+                    TextButton(
+                        onPressed: () {
+                          setState(() {
+                            isloading = true;
+                          });
+                          handleaddorder();
+                        },
+                        child: const Text("Confirm")),
+                  ],
+                );
         });
+  }
+
+  Future handleOnque() async {
+    final navigator = Navigator.of(context);
+    DocumentSnapshot dataord = await FirebaseFirestore.instance
+        .collection('Orders')
+        .doc('${currentuser.uid}')
+        .get();
+
+    if (dataord.exists) {
+      setState(() {
+        uniqID.generateUniqueId();
+        isloading = false;
+      });
+      Orders ord = Orders.fromdocument(dataord);
+      debugPrint("${ord.totalprice}");
+      navigator.pushAndRemoveUntil(
+          MaterialPageRoute(
+              builder: ((context) => QRgenerator(
+                    ord: ord,
+                  ))),
+          (route) => false);
+    } else {
+      setState(() {
+        isloading = false;
+      });
+      snackbar("There was an error proccesing your order");
+    }
+  }
+
+  void handleaddorder() async {
+    Orders ord = Orders();
+    ord.prdID = "${widget.prd.prdID}";
+    ord.ordersID = uniqID.generateUniqueId();
+    ord.userID = "${currentuser.uid}";
+    ord.name = "${widget.prd.name}";
+    ord.totalprice = double.parse("${widget.totalprice}");
+    ord.imagelink = "${widget.prd.imagelink}";
+    ord.quantity = int.parse("${widget.qnty}");
+    ord.description = "${widget.prd.description}";
+    ord.payementType = "Over the Counter";
+    ord.onaccept = false;
+
+    await FirebaseFirestore.instance
+        .collection('Orders')
+        .doc('${currentuser.uid}')
+        .set(ord.tomap())
+        .then((value) => handleOnque());
   }
 }

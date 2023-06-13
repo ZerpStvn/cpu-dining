@@ -24,27 +24,40 @@ class CardOrders extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MainText(
+                    const MainText(
                       title: "Total Orders",
                       size: 15,
                       color: Colors.white,
                       fnt: FontWeight.bold,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 2,
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 12.0),
-                      child: MainText(
-                        title: "120",
-                        size: 49,
-                        color: Colors.white,
-                        fnt: FontWeight.bold,
-                      ),
-                    ),
+                    StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('Orders')
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: Text("0"),
+                            );
+                          } else {
+                            return Padding(
+                              padding: const EdgeInsets.only(left: 12.0),
+                              child: MainText(
+                                title: "${snapshot.data!.docs.length}",
+                                size: 49,
+                                color: Colors.white,
+                                fnt: FontWeight.bold,
+                              ),
+                            );
+                          }
+                        }),
                   ],
                 ),
                 Column(

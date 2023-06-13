@@ -277,6 +277,18 @@ class _SignupControllerState extends State<SignupController> {
         (route) => false);
   }
 
+  snackbar(String? title) {
+    final snack = SnackBar(content: Text(title!));
+    ScaffoldMessenger.of(context).showSnackBar(snack);
+  }
+
+  void handleError(String? error) {
+    setState(() {
+      isloading = false;
+      snackbar(error);
+    });
+  }
+
   void signUP(String email, String password) async {
     setState(() {
       isloading = true;
@@ -290,24 +302,31 @@ class _SignupControllerState extends State<SignupController> {
         switch (error.code) {
           case "invalid-email":
             errormessage = "Your email address is invalid.";
+            handleError(errormessage);
             break;
           case "wrong-password":
             errormessage = "Your password is wrong.";
+            handleError(errormessage);
             break;
           case "user-not-found":
             errormessage = "User with this email doesn't exist.";
+            handleError(errormessage);
             break;
           case "user-disabled":
             errormessage = "User with this email has been disabled.";
+            handleError(errormessage);
             break;
           case "too-many-requests":
             errormessage = "Too many requests";
+            handleError(errormessage);
             break;
           case "operation-not-allowed":
             errormessage = "Signing in with Email and Password is not enabled.";
+            handleError(errormessage);
             break;
           default:
             errormessage = "An undefined Error happened.";
+            handleError(errormessage);
         }
       }
     }

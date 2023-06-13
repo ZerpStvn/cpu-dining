@@ -159,6 +159,18 @@ class _LoginControllerState extends State<LoginController> {
     });
   }
 
+  snackbar(String? title) {
+    final snack = SnackBar(content: Text(title!));
+    ScaffoldMessenger.of(context).showSnackBar(snack);
+  }
+
+  void handleError(String? error) {
+    setState(() {
+      isloading = false;
+      snackbar(error);
+    });
+  }
+
   void userlogin(String email, String password) async {
     setState(() {
       isloading = true;
@@ -172,26 +184,32 @@ class _LoginControllerState extends State<LoginController> {
         switch (error.code) {
           case "invalid-email":
             errorMessage = "Your email address is invalid.";
-
+            handleError(errorMessage);
             break;
           case "wrong-password":
             errorMessage = "Your password is wrong.";
+            handleError(errorMessage);
             break;
           case "user-not-found":
             errorMessage = "User with this email doesn't exist.";
+            handleError(errorMessage);
             break;
           case "user-disabled":
             errorMessage = "User with this email has been disabled.";
+            handleError(errorMessage);
             break;
           case "too-many-requests":
             errorMessage = "Too many requests";
+            handleError(errorMessage);
             break;
           case "operation-not-allowed":
             errorMessage = "Signing in with Email and Password is not enabled.";
+            handleError(errorMessage);
             break;
           default:
             errorMessage =
                 "An undefined error happened. Please try again later";
+            handleError(errorMessage);
         }
       }
     }
