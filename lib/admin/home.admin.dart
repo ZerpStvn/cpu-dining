@@ -36,24 +36,26 @@ class _AdminHomepageState extends State<AdminHomepage>
             ),
             appBar: AppBar(
               automaticallyImplyLeading: false,
-              title: const Center(
-                child: MainText(
-                  title: "CPU-Dining",
-                  size: 14,
-                  color: Colors.amber,
-                  fnt: FontWeight.bold,
+              leadingWidth: 180,
+              leading: const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 10.0),
+                  child: MainText(
+                    title: "CPU-Dining (Admin)",
+                    size: 14,
+                    color: Colors.amber,
+                    fnt: FontWeight.bold,
+                  ),
                 ),
               ),
-              leading: IconButton(
-                icon: const DrawerButtonIcon(),
-                onPressed: () {
-                  scaffoldkey.currentState!.openDrawer();
-                },
-              ),
+              // leading: IconButton(
+              //   icon: const DrawerButtonIcon(),
+              //   onPressed: () {
+              //     scaffoldkey.currentState!.openDrawer();
+              //   },
+              // ),
               actions: [
                 IconButton(onPressed: () {}, icon: const Icon(Icons.qr_code)),
-                IconButton(
-                    onPressed: () {}, icon: const Icon(Icons.notifications)),
                 IconButton(
                     onPressed: () {
                       isloading ? null : logout();

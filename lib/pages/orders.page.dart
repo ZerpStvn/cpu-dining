@@ -25,6 +25,9 @@ class _OrderPageState extends State<OrderPage> {
                   (route) => false);
             },
             icon: const Icon(Icons.arrow_back)),
+        actions: [
+          IconButton(onPressed: () {}, icon: const Icon(Icons.history))
+        ],
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -54,7 +57,10 @@ class _OrderPageState extends State<OrderPage> {
                 ],
               ),
               FutureBuilder(
-                  future: FirebaseFirestore.instance.collection('Orders').get(),
+                  future: FirebaseFirestore.instance
+                      .collection('Orders')
+                      .where("userID", isEqualTo: "${currentuser.uid}")
+                      .get(),
                   builder: ((context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.active) {
                       return const Center(
@@ -68,13 +74,7 @@ class _OrderPageState extends State<OrderPage> {
                           itemBuilder: ((context, index) {
                             Orders ords = Orders.fromdocument(
                                 snapshot.data!.docs[index].data());
-                            if (currentuser.uid == ords.userID) {
-                              return OrderCompnentView(
-                                ord: ords,
-                              );
-                            } else {
-                              return null;
-                            }
+                            return OrderCompnentView(ord: ords);
                           }));
                     }
                     return Container();

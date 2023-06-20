@@ -223,7 +223,9 @@ class _SignupControllerState extends State<SignupController> {
                     backgroundColor: const Color(0xfff4CA39),
                   ),
                   onPressed: () {
-                    signUP(emailController.text, passwrdController.text);
+                    isloading == false
+                        ? signUP(emailController.text, passwrdController.text)
+                        : null;
                   },
                   child: const MainText(
                       title: "SIGNUP", size: 14, color: Colors.black)),

@@ -26,15 +26,10 @@ class _HomepgeState extends State<Homepge> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          leading: IconButton(
-            onPressed: () {
-              scaffoldkey.currentState!.openDrawer();
-            },
-            icon: const DrawerButtonIcon(),
-          ),
-          title: const Center(
+          leadingWidth: 190,
+          leading: const Center(
             child: MainText(
-              title: "CPU-Dining",
+              title: "CPU-Dining (Student)",
               size: 14,
               fnt: FontWeight.bold,
               color: Colors.amber,
@@ -52,6 +47,16 @@ class _HomepgeState extends State<Homepge> {
                           builder: ((context) => const OrderPage())));
                 },
                 icon: const Icon(Icons.notifications)),
+            IconButton(
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut().then((value) =>
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const AuthLogin()),
+                          (route) => false));
+                },
+                icon: const Icon(Icons.logout)),
           ],
         ),
         body: RefreshIndicator(

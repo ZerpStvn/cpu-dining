@@ -100,7 +100,10 @@ class _LoginControllerState extends State<LoginController> {
                     backgroundColor: const Color(0xfff4CA39),
                   ),
                   onPressed: () {
-                    userlogin(emailController.text, passwrdController.text);
+                    isloading == false
+                        ? userlogin(
+                            emailController.text, passwrdController.text)
+                        : null;
                   },
                   child: const MainText(
                       title: "LOGIN", size: 14, color: Colors.black)),

@@ -1,4 +1,6 @@
+import 'package:cpudining/admin/view.order.dart';
 import 'package:cpudining/model/orders.class.dart';
+import 'package:cpudining/pages/orderView.student.dart';
 
 import '../../packages/exports.dart';
 
@@ -20,10 +22,21 @@ class _OrderCompnentViewState extends State<OrderCompnentView> {
         elevation: 5,
         child: ListTile(
           onTap: () {
-            // Navigator.push(
-            //     context,
-            //     MaterialPageRoute(
-            //         builder: (context) => ItemController(ord: widget.ord)));
+            if (currentuser.userrole == 1) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ViewOrderAdmin(
+                            ord: widget.ord,
+                          )));
+            } else {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => OrderViewStudent(
+                            ord: widget.ord,
+                          )));
+            }
           },
           contentPadding: const EdgeInsets.all(10),
           leading: Container(
