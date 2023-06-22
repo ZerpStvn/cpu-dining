@@ -1,5 +1,4 @@
 import '../../packages/exports.dart';
-import '../../pages/orders.page.dart';
 
 class AdminDrawerComponent extends StatelessWidget {
   const AdminDrawerComponent({
@@ -8,7 +7,7 @@ class AdminDrawerComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    //final user = FirebaseAuth.instance.currentUser;
     double width = MediaQuery.of(context).size.width;
     return Drawer(
       width: width * 0.70,
@@ -24,12 +23,12 @@ class AdminDrawerComponent extends StatelessWidget {
           ),
           ListTile(
             onTap: () {
-              currentuser.userrole == 0
-                  ? Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const OrderPage()))
-                  : null;
+              // currentuser.userrole == 0
+              //     ? Navigator.push(
+              //         context,
+              //         MaterialPageRoute(
+              //             builder: (context) => const OrderPage()))
+              //     : null;
             },
             title: MainText(
                 title: currentuser.userrole == 1 ? "Check Orders" : "Orders",

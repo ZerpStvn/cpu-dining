@@ -20,6 +20,10 @@ class _SignupControllerState extends State<SignupController> {
   bool unchecked = false;
   String? errormessage;
   bool isloading = false;
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -241,11 +245,7 @@ class _SignupControllerState extends State<SignupController> {
                     color: Colors.amber,
                   )
                 : TextButton(
-                    onPressed: () => Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: ((context) => const AuthLogin())),
-                        (route) => false),
+                    onPressed: () => Navigator.pop(context),
                     child: const MainText(
                         title: "Already have an Account? Login",
                         size: 12,

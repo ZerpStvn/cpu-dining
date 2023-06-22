@@ -2,6 +2,7 @@ import 'package:cpudining/components/component/ListOrder.user.dart';
 import 'package:cpudining/components/component/listview.item.dart';
 import 'package:cpudining/model/product.class.dart';
 import 'package:cpudining/packages/exports.dart';
+import 'package:cpudining/pages/addCartView.dart';
 import 'package:cpudining/pages/orders.page.dart';
 
 class Homepge extends StatefulWidget {
@@ -37,7 +38,12 @@ class _HomepgeState extends State<Homepge> {
           ),
           actions: [
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AddToCartView()));
+                },
                 icon: const Icon(Icons.local_grocery_store_rounded)),
             IconButton(
                 onPressed: () {

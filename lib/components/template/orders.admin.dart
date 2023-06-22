@@ -1,21 +1,20 @@
-import 'package:cpudining/components/component/Listview.order.user.dart';
 import 'package:cpudining/packages/exports.dart';
 
-import '../../model/orders.class.dart';
+import '../component/Listview.order.user.dart';
 
 class OrdersAdmin extends StatefulWidget {
-  const OrdersAdmin({super.key});
+  const OrdersAdmin({Key? key}) : super(key: key);
 
   @override
   State<OrdersAdmin> createState() => _OrdersAdminState();
 }
 
 class _OrdersAdminState extends State<OrdersAdmin> {
-  List order = [];
+  List<Map<String, dynamic>> checkout = [];
 
   @override
   void initState() {
-    getorders();
+    getOrders();
     super.initState();
   }
 
@@ -32,44 +31,52 @@ class _OrdersAdminState extends State<OrdersAdmin> {
               Row(
                 children: [
                   IconButton(
-                      onPressed: () {
-                        setState(() {
-                          getorders();
-                        });
-                      },
-                      icon: const Icon(Icons.refresh)),
+                    onPressed: () {
+                      setState(() {
+                        getOrders();
+                      });
+                    },
+                    icon: const Icon(Icons.refresh),
+                  ),
                   const Text("Refresh"),
                 ],
               ),
-              IconButton(onPressed: () {}, icon: const Icon(Icons.sort)),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.sort),
+              ),
             ],
           ),
         ),
         Padding(
           padding: const EdgeInsets.all(10.0),
           child: ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: order.length,
-              itemBuilder: ((context, index) {
-                return OrderCompnentView(
-                  ord: order[index] as Orders,
-                );
-              })),
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: checkout.length,
+            itemBuilder: (context, index) {
+              Map<String, dynamic> orderData = checkout[index];
+              return OrderCompnentView(
+                name: orderData['name'] ?? '',
+                total: orderData['total'] ?? 0.0,
+                schoolID: orderData['school ID'] ?? '',
+                userid: orderData['userID'] ?? '',
+              );
+            },
+          ),
         ),
       ],
     );
   }
 
-  Future getorders() async {
-    final data = await FirebaseFirestore.instance.collection('Orders').get();
+  Future<void> getOrders() async {
+    final querySnapshot =
+        await FirebaseFirestore.instance.collection('checkout').get();
 
     if (mounted) {
       setState(() {
-        order = List.from(data.docs.map((doc) => Orders.fromdocument(doc)));
+        checkout = querySnapshot.docs.map((doc) => doc.data()).toList();
       });
-    } else {
-      dispose();
     }
   }
 }

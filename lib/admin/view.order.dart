@@ -1,242 +1,212 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cpudining/admin/home.admin.dart';
-import 'package:cpudining/constant/fontstyle.dart';
-import 'package:cpudining/model/accept.class.dart';
-import 'package:cpudining/model/order.history.dart';
-import 'package:cpudining/model/orders.class.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
-import '../model/id.class.dart';
+import '../constant/fontstyle.dart';
 
 class ViewOrderAdmin extends StatefulWidget {
-  final Orders ord;
-  const ViewOrderAdmin({super.key, required this.ord});
+  final String userid;
+  const ViewOrderAdmin({
+    super.key,
+    required this.userid,
+  });
 
   @override
   State<ViewOrderAdmin> createState() => _ViewOrderAdminState();
 }
 
 class _ViewOrderAdminState extends State<ViewOrderAdmin> {
-  Orders ord = Orders();
+  String uniqID = const Uuid().v4();
+  double total = 0;
+  List<Map<String, dynamic>> checkout = [];
+
   @override
   void initState() {
-    getOrder();
+    getdata();
+    getOrders();
     super.initState();
+  }
+
+  Future<void> getdata() async {
+    final data = await FirebaseFirestore.instance
+        .collection('checkout')
+        .doc(widget.userid)
+        .get();
+
+    List<Map<String, dynamic>> checkoutItems =
+        List<Map<String, dynamic>>.from(data['items']);
+
+    if (checkoutItems.isNotEmpty) {
+      double caltotal = 0;
+
+      for (var item in checkoutItems) {
+        double totalPrice = item['totalprice'] as double;
+        caltotal += totalPrice;
+      }
+
+      setState(() {
+        total = caltotal;
+      });
+    }
+  }
+
+  Future<void> getOrders() async {
+    final querySnapshot =
+        await FirebaseFirestore.instance.collection('checkout').get();
+
+    if (mounted) {
+      setState(() {
+        checkout = querySnapshot.docs.map((doc) => doc.data()).toList();
+      });
+    }
+  }
+
+  Future<void> storeDataToOrderDelivered(
+      List<Map<String, dynamic>> data) async {
+    final CollectionReference orderDeliveredCollection =
+        FirebaseFirestore.instance.collection('orderDelivered');
+
+    for (var item in data) {
+      await orderDeliveredCollection
+          .doc(uniqID)
+          .set(item)
+          .then((value) => orderhistory(data));
+    }
+  }
+
+  Future<void> delete() async {
+    await FirebaseFirestore.instance
+        .collection('checkout')
+        .doc(widget.userid)
+        .delete()
+        .then((value) => Navigator.pop(context));
+  }
+
+  Future<void> orderhistory(List<Map<String, dynamic>> data) async {
+    final CollectionReference orderDeliveredCollection =
+        FirebaseFirestore.instance.collection('ordersave');
+
+    for (var item in data) {
+      await orderDeliveredCollection
+          .add(item)
+          .then((value) => delete())
+          .then((value) => snackbar("Item delivered to the customer"));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: true,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 8.0),
+            child: Icon(Icons.sort),
+          )
+        ],
+      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: ord.userID == null
-              ? const Column(
-                  children: [
-                    SizedBox(
-                      height: 230,
-                    ),
-                    Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ],
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 250,
-                      child: Stack(
-                        children: [
-                          Container(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: FutureBuilder(
+                  future: FirebaseFirestore.instance
+                      .collection('checkout')
+                      .doc(widget.userid)
+                      .get(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: Text('No checkout items available.'),
+                      );
+                    }
+
+                    Map<String, dynamic>? data = snapshot.data?.data();
+                    if (data == null || data['items'] == null) {
+                      return const Center(
+                        child: Text('No checkout items available.'),
+                      );
+                    }
+
+                    List<Map<String, dynamic>> checkoutItems =
+                        List<Map<String, dynamic>>.from(data['items']);
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: checkoutItems.length,
+                      itemBuilder: (context, index) {
+                        Map<String, dynamic> item = checkoutItems[index];
+
+                        return ListTile(
+                          leading: Container(
+                            width: 80,
+                            height: 80,
                             decoration: BoxDecoration(
-                                image: DecorationImage(
-                                    image:
-                                        NetworkImage("${widget.ord.imagelink}"),
-                                    colorFilter: ColorFilter.mode(
-                                        Colors.black.withOpacity(0.40),
-                                        BlendMode.multiply),
-                                    fit: BoxFit.cover)),
-                          ),
-                          Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      icon: const Icon(Icons.arrow_back,
-                                          color: Colors.white)),
-                                  IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(Icons.sort,
-                                          color: Colors.white)),
-                                ],
+                              image: DecorationImage(
+                                image: NetworkImage(item['imagelink']),
+                                fit: BoxFit.cover,
                               ),
-                            ],
+                            ),
                           ),
-                        ],
+                          title: Text(item['name'] as String),
+                          subtitle: Text('Quantity: ${item['quantity']}'),
+                          trailing: Text('Php ${item['totalprice']}0'),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: ListTile(
+                        title: Text(
+                          "Total Php ${total}0",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        trailing: const Icon(Icons.check_circle_outline),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 19,
                     ),
                     SizedBox(
-                      height: 120,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                MainText(
-                                    title: "${widget.ord.name}",
-                                    size: 20,
-                                    fnt: FontWeight.bold,
-                                    color: Colors.black),
-                                MainText(
-                                  size: 14,
-                                  fnt: FontWeight.normal,
-                                  color: Colors.grey,
-                                  title: "Php ${widget.ord.totalprice}.00",
-                                ),
-                              ],
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const MainText(
-                                    title: "Payment Type",
-                                    size: 20,
-                                    fnt: FontWeight.bold,
-                                    color: Colors.black),
-                                MainText(
-                                  size: 14,
-                                  fnt: FontWeight.normal,
-                                  color: Colors.grey,
-                                  title: "${widget.ord.payementType}",
-                                ),
-                              ],
-                            ),
-                          ],
+                      width: MediaQuery.of(context).size.width * 0.95,
+                      height: 45,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          elevation: 10,
+                          backgroundColor: Colors.amber,
                         ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Column(
-                            children: [
-                              const MainText(
-                                  title: "Total Quantity",
-                                  size: 20,
-                                  color: Colors.black,
-                                  fnt: FontWeight.bold),
-                              MainText(
-                                  title: "${widget.ord.quantity}",
-                                  size: 15,
-                                  color: Colors.grey),
-                            ],
-                          ),
-                          Container(
-                            width: 1,
-                            height: 40,
-                            color: Colors.grey.withOpacity(0.30),
-                          ),
-                          const Column(
-                            children: [
-                              MainText(
-                                  title: "Rate",
-                                  size: 20,
-                                  color: Colors.black,
-                                  fnt: FontWeight.bold),
-                              MainText(
-                                title: "5.0",
-                                size: 15,
-                                color: Colors.grey,
-                              ),
-                            ],
-                          ),
-                          Container(
-                            width: 1,
-                            height: 40,
-                            color: Colors.grey.withOpacity(0.30),
-                          ),
-                          const Column(
-                            children: [
-                              MainText(
-                                  title: "Cooking",
-                                  size: 20,
-                                  color: Colors.black,
-                                  fnt: FontWeight.bold),
-                              MainText(
-                                title: "5-10 min",
-                                size: 15,
-                                color: Colors.grey,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const MainText(
-                              title: "Description",
-                              size: 20,
-                              color: Colors.black,
-                              fnt: FontWeight.bold),
-                          MainText(
-                            title: "${widget.ord.description}",
-                            size: 12,
-                            color: Colors.black,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: 55,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              elevation: 10, backgroundColor: Colors.amber),
-                          onPressed: () {
-                            handleAcceptOrder();
-                          },
-                          child: const MainText(
-                              title: "Accept Order",
-                              size: 12,
-                              color: Color.fromARGB(255, 20, 15, 15)),
+                        onPressed: () {
+                          storeDataToOrderDelivered(checkout);
+                        },
+                        child: const MainText(
+                          title: "Deliver",
+                          size: 12,
+                          color: Color.fromARGB(255, 20, 15, 15),
                         ),
                       ),
                     ),
                   ],
                 ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -245,70 +215,5 @@ class _ViewOrderAdminState extends State<ViewOrderAdmin> {
   snackbar(String? title) {
     final snack = SnackBar(content: Text(title!));
     ScaffoldMessenger.of(context).showSnackBar(snack);
-  }
-
-  void handleAcceptOrder() async {
-    UniqueID uniq = UniqueID();
-    AcceptOrd accord = AcceptOrd();
-    accord.acceptOrdID = uniq.generateUniqueId();
-    accord.ordersID = "${widget.ord.ordersID}";
-    accord.userID = "${widget.ord.userID}";
-    accord.payementType = "${widget.ord.payementType}";
-    accord.onaccept = true;
-    accord.prdID = "${widget.ord.prdID}";
-    accord.name = "${widget.ord.name}";
-    accord.totalprice = double.parse("${widget.ord.totalprice}");
-    accord.quantity = int.parse("${widget.ord.quantity}");
-    accord.description = "${widget.ord.description}";
-    accord.imagelink = "${widget.ord.imagelink}";
-
-    await FirebaseFirestore.instance
-        .collection('OrderAccet')
-        .doc(uniq.generateUniqueId())
-        .set(accord.tomap())
-        .then((value) => handleUpdate())
-        .then((value) => Navigator.pushAndRemoveUntil(
-            context,
-            (MaterialPageRoute(builder: (context) => const AdminHomepage())),
-            (route) => false));
-  }
-
-  void handleUpdate() async {
-    OrderHistory ordhst = OrderHistory();
-    ordhst.ordersID = "${widget.ord.ordersID}";
-    ordhst.userID = "${widget.ord.userID}";
-    ordhst.payementType = "${widget.ord.payementType}";
-    ordhst.onaccept = true;
-    ordhst.prdID = "${widget.ord.prdID}";
-    ordhst.name = "${widget.ord.name}";
-    ordhst.totalprice = double.parse("${widget.ord.totalprice}");
-    ordhst.quantity = int.parse("${widget.ord.quantity}");
-    ordhst.description = "${widget.ord.description}";
-    ordhst.imagelink = "${widget.ord.imagelink}";
-    await FirebaseFirestore.instance
-        .collection('Ordershistory')
-        .add(ordhst.tomap())
-        .then((value) => snackbar("Order Accepted"))
-        .then((value) => handledelete());
-  }
-
-  void handledelete() async {
-    await FirebaseFirestore.instance
-        .collection('Orders')
-        .doc("${widget.ord.userID}")
-        .delete();
-  }
-
-  void getOrder() async {
-    DocumentSnapshot docs = await FirebaseFirestore.instance
-        .collection('Orders')
-        .doc("${widget.ord.userID}")
-        .get();
-
-    if (docs.exists) {
-      setState(() {
-        ord = Orders.fromdocument(docs);
-      });
-    }
   }
 }

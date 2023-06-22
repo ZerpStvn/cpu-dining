@@ -1,12 +1,18 @@
-import 'package:cpudining/admin/view.order.dart';
-import 'package:cpudining/model/orders.class.dart';
-import 'package:cpudining/pages/orderView.student.dart';
-
+import '../../admin/view.order.dart';
 import '../../packages/exports.dart';
 
 class OrderCompnentView extends StatefulWidget {
-  final Orders ord;
-  const OrderCompnentView({super.key, required this.ord});
+  final String name;
+  final double total;
+  final String schoolID;
+  final String userid;
+  const OrderCompnentView({
+    super.key,
+    required this.name,
+    required this.total,
+    required this.schoolID,
+    required this.userid,
+  });
 
   @override
   State<OrderCompnentView> createState() => _OrderCompnentViewState();
@@ -27,31 +33,21 @@ class _OrderCompnentViewState extends State<OrderCompnentView> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => ViewOrderAdmin(
-                            ord: widget.ord,
-                          )));
-            } else {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => OrderViewStudent(
-                            ord: widget.ord,
+                            userid: widget.userid,
                           )));
             }
           },
           contentPadding: const EdgeInsets.all(10),
           leading: Container(
-            height: 90,
-            width: 110,
-            decoration: BoxDecoration(
+            width: 60,
+            height: 60,
+            decoration: const BoxDecoration(
                 image: DecorationImage(
-                    image: NetworkImage("${widget.ord.imagelink}"),
-                    fit: BoxFit.cover)),
+                    image: AssetImage('assets/order.png'), fit: BoxFit.cover)),
           ),
-          title: Text("${widget.ord.name}"),
+          title: Text(widget.name),
           subtitle: MainText(
-              title: "Php ${widget.ord.totalprice}0",
-              size: 10,
-              color: Colors.grey),
+              title: "Php ${widget.total}0", size: 10, color: Colors.grey),
           trailing: const Icon(Icons.receipt),
         ),
       ),

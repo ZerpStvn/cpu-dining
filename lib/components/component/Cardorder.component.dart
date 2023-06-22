@@ -38,7 +38,7 @@ class CardOrders extends StatelessWidget {
                     ),
                     StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
-                            .collection('Orders')
+                            .collection('checkout')
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==

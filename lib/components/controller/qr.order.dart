@@ -1,4 +1,4 @@
-import 'package:cpudining/model/orders.class.dart';
+import 'package:cpudining/components/controller/login.controller.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -6,8 +6,9 @@ import '../../constant/fontstyle.dart';
 import '../../pages/homepage.dart';
 
 class QRgenerator extends StatefulWidget {
-  final Orders ord;
-  const QRgenerator({super.key, required this.ord});
+  const QRgenerator({
+    super.key,
+  });
 
   @override
   State<QRgenerator> createState() => _QRgeneratorState();
@@ -47,9 +48,9 @@ class _QRgeneratorState extends State<QRgenerator> {
                 height: 100,
               ),
               QrImageView(
-                data: '${widget.ord.ordersID}',
-                version: 1,
-                size: 220,
+                data: '${currentuser.uid}',
+                version: QrVersions.auto,
+                size: 280,
                 gapless: false,
                 errorStateBuilder: (cxt, err) {
                   return const Center(
@@ -61,24 +62,7 @@ class _QRgeneratorState extends State<QRgenerator> {
                 },
               ),
               const SizedBox(
-                height: 20,
-              ),
-              Center(
-                  child: Column(
-                children: [
-                  Text("Ref: ${widget.ord.ordersID}"),
-                  Text("Total: Php ${widget.ord.totalprice}0"),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  const Text(
-                    "Present this QR code \nto  CPU-Dining Counter",
-                    textAlign: TextAlign.center,
-                  )
-                ],
-              )),
-              const SizedBox(
-                height: 20,
+                height: 130,
               ),
               Center(
                 child: SizedBox(
@@ -88,7 +72,7 @@ class _QRgeneratorState extends State<QRgenerator> {
                     style: ElevatedButton.styleFrom(
                         elevation: 10, backgroundColor: Colors.amber),
                     onPressed: () {
-                      snackbar("unable to download. Please take a Screen Shot");
+                      snackbar("unable to download. Please take a Screenshot");
                     },
                     child: const MainText(
                         title: "Download", size: 12, color: Colors.white),

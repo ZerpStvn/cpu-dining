@@ -1,6 +1,5 @@
-import 'package:cpudining/model/orders.class.dart';
+import 'package:cpudining/pages/orderView.student.dart';
 
-import '../components/component/Listview.order.user.dart';
 import '../packages/exports.dart';
 
 class OrderPage extends StatefulWidget {
@@ -11,90 +10,92 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
-  List orders = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: ((context) => const Homepge())),
-                  (route) => false);
-            },
-            icon: const Icon(Icons.arrow_back)),
-        actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.history))
+        automaticallyImplyLeading: true,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 8.0),
+            child: Icon(Icons.sort),
+          )
         ],
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MainText(
-                      title: "Your Orders ", size: 12, color: Colors.black),
-                  Row(
-                    children: [
-                      IconButton(
-                          onPressed: () {
-                            setState(() {
-                              onRefreshitem();
-                            });
-                          },
-                          icon: const Icon(Icons.refresh)),
-                      const MainText(
-                          title: "Refresh ", size: 12, color: Colors.black),
-                    ],
-                  ),
-                ],
-              ),
-              FutureBuilder(
-                  future: FirebaseFirestore.instance
-                      .collection('Orders')
-                      .where("userID", isEqualTo: "${currentuser.uid}")
-                      .get(),
-                  builder: ((context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.active) {
-                      return const Center(
-                        child: Text("Loadding"),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: FutureBuilder(
+                future: FirebaseFirestore.instance
+                    .collection('checkout')
+                    .doc(currentuser.uid)
+                    .get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  if (!snapshot.hasData) {
+                    return const Center(
+                      child: Text('No checkout items available.'),
+                    );
+                  }
+
+                  Map<String, dynamic>? data = snapshot.data?.data();
+                  if (data == null || data['items'] == null) {
+                    return const Center(
+                      child: Text('No checkout items available.'),
+                    );
+                  }
+
+                  List<Map<String, dynamic>> checkoutItems =
+                      List<Map<String, dynamic>>.from(data['items']);
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: checkoutItems.length,
+                    itemBuilder: (context, index) {
+                      Map<String, dynamic> item = checkoutItems[index];
+
+                      return ListTile(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => OrderViewStudent(
+                                      imagelink: item['imagelink'],
+                                      name: item['name'],
+                                      totalprice: item['totalprice'],
+                                      quantity: item['quantity'],
+                                      description: item['description'])));
+                        },
+                        leading: Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: NetworkImage(item['imagelink']),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        title: Text(item['name'] as String),
+                        subtitle: Text('Quantity: ${item['quantity']}'),
+                        trailing: Text('Php ${item['totalprice']}0'),
                       );
-                    } else if (snapshot.hasData) {
-                      return ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: snapshot.data!.docs.length,
-                          itemBuilder: ((context, index) {
-                            Orders ords = Orders.fromdocument(
-                                snapshot.data!.docs[index].data());
-                            return OrderCompnentView(ord: ords);
-                          }));
-                    }
-                    return Container();
-                  })),
-            ],
-          ),
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  Future onRefreshitem() async {
-    final data = await FirebaseFirestore.instance.collection('Orders').get();
-
-    if (mounted) {
-      setState(() {
-        orders = List.from(data.docs.map((doc) => Orders.fromdocument(doc)));
-      });
-    } else {
-      dispose();
-    }
   }
 }

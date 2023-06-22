@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpudining/components/component/Checkedout.dart';
+import 'package:cpudining/components/controller/login.controller.dart';
 import 'package:cpudining/constant/fontstyle.dart';
+import 'package:cpudining/model/addtocart.dart';
 import 'package:cpudining/model/product.class.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 class ItemController extends StatefulWidget {
   final Products prd;
@@ -270,7 +274,10 @@ class _ItemControllerState extends State<ItemController> {
                             color: Colors.amber,
                             borderRadius: BorderRadius.circular(50)),
                         child: IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            //
+                            addToCart();
+                          },
                           icon: const Icon(Icons.local_grocery_store),
                           color: Colors.white,
                         ),
@@ -284,5 +291,27 @@ class _ItemControllerState extends State<ItemController> {
         ),
       ),
     );
+  }
+
+  void addToCart() async {
+    String uniqID = const Uuid().v4();
+    final cartcolllection = FirebaseFirestore.instance.collection('cart');
+    AddtoCart crt = AddtoCart();
+    crt.prdID = widget.prd.prdID;
+    crt.cartsID = uniqID;
+    crt.userID = currentuser.uid;
+    crt.name = widget.prd.name;
+    crt.totalprice = totalprice;
+    crt.quantity = qnty;
+    crt.description = widget.prd.description;
+    crt.imagelink = widget.prd.imagelink;
+    try {
+      await cartcolllection
+          .doc(uniqID)
+          .set(crt.tomap())
+          .then((value) => snackbar("Item Added"));
+    } catch (error) {
+      debugPrint("$error");
+    }
   }
 }

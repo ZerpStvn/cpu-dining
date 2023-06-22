@@ -1,8 +1,9 @@
-import 'package:cpudining/components/controller/qr.order.dart';
-import 'package:cpudining/model/id.class.dart';
 import 'package:cpudining/model/orders.class.dart';
 import 'package:cpudining/model/product.class.dart';
 import 'package:cpudining/packages/exports.dart';
+import 'package:uuid/uuid.dart';
+
+import '../controller/qr.order.dart';
 
 class CheckedOut extends StatefulWidget {
   final Products prd;
@@ -19,19 +20,13 @@ class CheckedOut extends StatefulWidget {
 }
 
 class _CheckedOutState extends State<CheckedOut> {
-  UniqueID uniqID = UniqueID();
+  String uniqID = const Uuid().v4();
   bool isloading = false;
   bool ischecked = false;
 
   snackbar(String? title) {
     final snack = SnackBar(content: Text(title!));
     ScaffoldMessenger.of(context).showSnackBar(snack);
-  }
-
-  @override
-  void initState() {
-    uniqID.generateUniqueId();
-    super.initState();
   }
 
   @override
@@ -206,10 +201,7 @@ class _CheckedOutState extends State<CheckedOut> {
                         child: const Text("Cancel")),
                     TextButton(
                         onPressed: () {
-                          setState(() {
-                            isloading = true;
-                          });
-                          handleaddorder();
+                          checkout();
                         },
                         child: const Text("Confirm")),
                   ],
@@ -217,38 +209,16 @@ class _CheckedOutState extends State<CheckedOut> {
         });
   }
 
-  Future handleOnque() async {
-    final navigator = Navigator.of(context);
-    DocumentSnapshot dataord = await FirebaseFirestore.instance
-        .collection('Orders')
-        .doc('${currentuser.uid}')
-        .get();
+  Future<void> checkout() async {
+    setState(() {
+      isloading = true;
+    });
 
-    if (dataord.exists) {
-      setState(() {
-        uniqID.generateUniqueId();
-        isloading = false;
-      });
-      Orders ord = Orders.fromdocument(dataord);
-      debugPrint("${ord.totalprice}");
-      navigator.pushAndRemoveUntil(
-          MaterialPageRoute(
-              builder: ((context) => QRgenerator(
-                    ord: ord,
-                  ))),
-          (route) => false);
-    } else {
-      setState(() {
-        isloading = false;
-      });
-      snackbar("There was an error proccesing your order");
-    }
-  }
-
-  void handleaddorder() async {
     Orders ord = Orders();
+    List<Map<String, dynamic>> checkoutDocs = [];
+
     ord.prdID = "${widget.prd.prdID}";
-    ord.ordersID = uniqID.generateUniqueId();
+    ord.ordersID = uniqID;
     ord.userID = "${currentuser.uid}";
     ord.name = "${widget.prd.name}";
     ord.totalprice = double.parse("${widget.totalprice}");
@@ -257,11 +227,24 @@ class _CheckedOutState extends State<CheckedOut> {
     ord.description = "${widget.prd.description}";
     ord.payementType = "Over the Counter";
     ord.onaccept = false;
+    checkoutDocs.add(ord.tomap());
 
+    // Store the checkout docs in Firestore
     await FirebaseFirestore.instance
-        .collection('Orders')
-        .doc('${currentuser.uid}')
-        .set(ord.tomap())
-        .then((value) => handleOnque());
+        .collection('checkout')
+        .doc(currentuser.uid)
+        .set({
+      'name': currentuser.username,
+      'school ID': currentuser.userschID,
+      'userID': currentuser.uid,
+      'total': widget.totalprice,
+      'items': checkoutDocs
+    }).then((value) => snackbar("item checkout"));
+    setState(() {
+      isloading = false;
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const QRgenerator()));
+    });
   }
+  //
 }

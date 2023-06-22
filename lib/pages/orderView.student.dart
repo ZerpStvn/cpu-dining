@@ -1,9 +1,19 @@
-import 'package:cpudining/model/orders.class.dart';
 import 'package:cpudining/packages/exports.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class OrderViewStudent extends StatefulWidget {
-  final Orders ord;
-  const OrderViewStudent({super.key, required this.ord});
+  final String imagelink;
+  final String name;
+  final double totalprice;
+  final int quantity;
+  final String description;
+  const OrderViewStudent(
+      {super.key,
+      required this.imagelink,
+      required this.name,
+      required this.totalprice,
+      required this.quantity,
+      required this.description});
 
   @override
   State<OrderViewStudent> createState() => _OrderViewStudentState();
@@ -27,7 +37,7 @@ class _OrderViewStudentState extends State<OrderViewStudent> {
                     Container(
                       decoration: BoxDecoration(
                           image: DecorationImage(
-                              image: NetworkImage("${widget.ord.imagelink}"),
+                              image: NetworkImage(widget.imagelink),
                               colorFilter: ColorFilter.mode(
                                   Colors.black.withOpacity(0.40),
                                   BlendMode.multiply),
@@ -71,7 +81,7 @@ class _OrderViewStudentState extends State<OrderViewStudent> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           MainText(
-                              title: "${widget.ord.name}",
+                              title: widget.name,
                               size: 20,
                               fnt: FontWeight.bold,
                               color: Colors.black),
@@ -79,14 +89,14 @@ class _OrderViewStudentState extends State<OrderViewStudent> {
                             size: 14,
                             fnt: FontWeight.normal,
                             color: Colors.grey,
-                            title: "Php ${widget.ord.totalprice}.00",
+                            title: "Php ${widget.totalprice}.00",
                           ),
                         ],
                       ),
-                      Column(
+                      const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const MainText(
+                          MainText(
                               title: "Payment Type",
                               size: 20,
                               fnt: FontWeight.bold,
@@ -95,7 +105,7 @@ class _OrderViewStudentState extends State<OrderViewStudent> {
                             size: 14,
                             fnt: FontWeight.normal,
                             color: Colors.grey,
-                            title: "${widget.ord.payementType}",
+                            title: "Over the Counter",
                           ),
                         ],
                       ),
@@ -120,7 +130,7 @@ class _OrderViewStudentState extends State<OrderViewStudent> {
                             color: Colors.black,
                             fnt: FontWeight.bold),
                         MainText(
-                            title: "${widget.ord.quantity}",
+                            title: "${widget.quantity}",
                             size: 15,
                             color: Colors.grey),
                       ],
@@ -180,7 +190,7 @@ class _OrderViewStudentState extends State<OrderViewStudent> {
                         color: Colors.black,
                         fnt: FontWeight.bold),
                     MainText(
-                      title: "${widget.ord.description}",
+                      title: widget.description,
                       size: 12,
                       color: Colors.black,
                     ),
@@ -189,6 +199,22 @@ class _OrderViewStudentState extends State<OrderViewStudent> {
               ),
               const SizedBox(
                 height: 10,
+              ),
+              Center(
+                child: QrImageView(
+                  data: '${currentuser.uid}',
+                  version: QrVersions.auto,
+                  size: 220,
+                  gapless: false,
+                  errorStateBuilder: (cxt, err) {
+                    return const Center(
+                      child: Text(
+                        'Uh oh! Something went wrong...',
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  },
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(10),
@@ -200,7 +226,7 @@ class _OrderViewStudentState extends State<OrderViewStudent> {
                         elevation: 10, backgroundColor: Colors.amber),
                     onPressed: () {},
                     child: MainText(
-                        title: "Total Php ${widget.ord.totalprice}.00",
+                        title: "Total Php ${widget.totalprice}.00",
                         size: 12,
                         color: const Color.fromARGB(255, 20, 15, 15)),
                   ),

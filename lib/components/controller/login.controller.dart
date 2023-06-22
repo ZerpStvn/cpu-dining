@@ -17,6 +17,10 @@ class _LoginControllerState extends State<LoginController> {
   bool passwordChar = true;
   String? errorMessage;
   bool isloading = false;
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
