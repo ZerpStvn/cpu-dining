@@ -247,14 +247,7 @@ class _ItemControllerState extends State<ItemController> {
                             if (qnty == 0) {
                               snackbar("Add quantity to your order");
                             } else {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => CheckedOut(
-                                            prd: widget.prd,
-                                            totalprice: totalprice!,
-                                            qnty: qnty,
-                                          )));
+                              check();
                             }
                           },
                           child: const MainText(
@@ -312,6 +305,25 @@ class _ItemControllerState extends State<ItemController> {
           .then((value) => snackbar("Item Added"));
     } catch (error) {
       debugPrint("$error");
+    }
+  }
+
+  void check() async {
+    final navigator = Navigator.of(context);
+    DocumentSnapshot docs = await FirebaseFirestore.instance
+        .collection('checkout')
+        .doc(currentuser.uid)
+        .get();
+
+    if (docs.exists) {
+      snackbar("You still have pending orders");
+    } else {
+      navigator.push(MaterialPageRoute(
+          builder: (context) => CheckedOut(
+                prd: widget.prd,
+                totalprice: totalprice!,
+                qnty: qnty,
+              )));
     }
   }
 }

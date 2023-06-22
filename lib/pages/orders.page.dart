@@ -85,8 +85,18 @@ class _OrderPageState extends State<OrderPage> {
                           ),
                         ),
                         title: Text(item['name'] as String),
-                        subtitle: Text('Quantity: ${item['quantity']}'),
-                        trailing: Text('Php ${item['totalprice']}0'),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Quantity: ${item['quantity']}'),
+                            Text('Php ${item['totalprice']}0'),
+                          ],
+                        ),
+                        trailing: IconButton(
+                            onPressed: () {
+                              delete(currentuser.uid);
+                            },
+                            icon: const Icon(Icons.delete)),
                       );
                     },
                   );
@@ -97,5 +107,10 @@ class _OrderPageState extends State<OrderPage> {
         ),
       ),
     );
+  }
+
+  void delete(id) async {
+    await FirebaseFirestore.instance.collection('checkout').doc(id).delete();
+    setState(() {});
   }
 }

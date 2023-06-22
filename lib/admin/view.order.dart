@@ -18,6 +18,8 @@ class ViewOrderAdmin extends StatefulWidget {
 class _ViewOrderAdminState extends State<ViewOrderAdmin> {
   String uniqID = const Uuid().v4();
   double total = 0;
+  String? name;
+  String? userID;
   List<Map<String, dynamic>> checkout = [];
 
   @override
@@ -56,7 +58,16 @@ class _ViewOrderAdminState extends State<ViewOrderAdmin> {
 
     if (mounted) {
       setState(() {
-        checkout = querySnapshot.docs.map((doc) => doc.data()).toList();
+        List<Map<String, dynamic>> data =
+            querySnapshot.docs.map((doc) => doc.data()).toList();
+
+        if (data.isNotEmpty) {
+          name = data[0]['name'];
+          userID = data[0]['school ID'] ?? "no ID";
+        } else {
+          name = null;
+        }
+        checkout = data;
       });
     }
   }
@@ -110,6 +121,33 @@ class _ViewOrderAdminState extends State<ViewOrderAdmin> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(
+              height: 20,
+            ),
+            ListTile(
+              trailing: const Icon(
+                Icons.check_circle_outline,
+                color: Colors.amber,
+              ),
+              leading: Container(
+                width: 80,
+                height: 80,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: AssetImage("assets/profile.png"),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              title: Text("$name",
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold)),
+              subtitle: Text("$userID"),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
             Expanded(
               child: SingleChildScrollView(
                 scrollDirection: Axis.vertical,

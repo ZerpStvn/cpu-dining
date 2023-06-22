@@ -303,7 +303,7 @@ class _AddToCartViewState extends State<AddToCartView> {
                         child: const Text("Cancel")),
                     TextButton(
                         onPressed: () {
-                          isloading ? null : checkout();
+                          isloading ? null : check();
                         },
                         child: const Text("Confirm")),
                   ],
@@ -314,6 +314,19 @@ class _AddToCartViewState extends State<AddToCartView> {
   void deleteItem(id) async {
     await FirebaseFirestore.instance.collection('cart').doc(id).delete();
     setState(() {});
+  }
+
+  void check() async {
+    DocumentSnapshot docs = await FirebaseFirestore.instance
+        .collection('checkout')
+        .doc(currentuser.uid)
+        .get();
+
+    if (docs.exists) {
+      snackbar("You still have pending orders");
+    } else {
+      checkout();
+    }
   }
 
   Future<void> checkout() async {
