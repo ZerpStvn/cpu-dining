@@ -1,6 +1,7 @@
 import 'package:cpudining/components/component/product.component.dart';
 import 'package:cpudining/model/product.class.dart';
 import 'package:cpudining/packages/exports.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ProductAdmin extends StatefulWidget {
   const ProductAdmin({super.key});
@@ -10,6 +11,9 @@ class ProductAdmin extends StatefulWidget {
 }
 
 class _ProductAdminState extends State<ProductAdmin> {
+  Barcode? result;
+  QRViewController? controller;
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   List product = [];
 
   @override
@@ -23,27 +27,6 @@ class _ProductAdminState extends State<ProductAdmin> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                      onPressed: () {
-                        setState(() {
-                          getProduct();
-                        });
-                      },
-                      icon: const Icon(Icons.refresh)),
-                  const Text("Refresh"),
-                ],
-              ),
-              IconButton(onPressed: () {}, icon: const Icon(Icons.sort)),
-            ],
-          ),
-        ),
         Padding(
           padding: const EdgeInsets.all(10.0),
           child: ListView.builder(

@@ -1,3 +1,5 @@
+import 'package:cpudining/components/controller/scanner.dart';
+
 import '../packages/exports.dart';
 
 class AdminHomepage extends StatefulWidget {
@@ -55,7 +57,14 @@ class _AdminHomepageState extends State<AdminHomepage>
               //   },
               // ),
               actions: [
-                IconButton(onPressed: () {}, icon: const Icon(Icons.qr_code)),
+                IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const QrScanner()));
+                    },
+                    icon: const Icon(Icons.qr_code)),
                 IconButton(
                     onPressed: () {
                       isloading ? null : logout();
@@ -63,44 +72,61 @@ class _AdminHomepageState extends State<AdminHomepage>
                     icon: const Icon(Icons.logout)),
               ],
             ),
-            body: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  CardOrders(width: width),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  TabBar(
-                      padding: const EdgeInsets.all(8),
-                      indicatorColor: Colors.amber,
-                      labelColor: Colors.black,
-                      dividerColor: Colors.transparent,
-                      controller: tabs,
-                      tabs: const [Text("Orders"), Text("Products")]),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  SizedBox(
-                    height: height,
-                    child: TabBarView(
-                        physics: const NeverScrollableScrollPhysics(),
+            body: RefreshIndicator(
+              onRefresh: getOrders,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    CardOrders(width: width),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    TabBar(
+                        padding: const EdgeInsets.all(8),
+                        indicatorColor: Colors.amber,
+                        labelColor: Colors.black,
+                        dividerColor: Colors.transparent,
                         controller: tabs,
-                        children: const [
-                          OrdersAdmin(),
-                          ProductAdmin(),
-                        ]),
-                  ),
-                ],
+                        tabs: const [Text("Orders"), Text("Products")]),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    SizedBox(
+                      height: height,
+                      child: TabBarView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          controller: tabs,
+                          children: const [
+                            OrdersAdmin(),
+                            ProductAdmin(),
+                          ]),
+                    ),
+                  ],
+                ),
               ),
             )),
       ),
     );
+  }
+
+  snackbar(String? title) {
+    final snack = SnackBar(content: Text(title!));
+    ScaffoldMessenger.of(context).showSnackBar(snack);
+  }
+
+  Future getOrders() async {
+    try {
+      await FirebaseFirestore.instance.collection('orders').get();
+      await FirebaseFirestore.instance.collection('products').get();
+    } catch (error) {
+      return "to items exixt";
+    }
   }
 
   void logout() async {
@@ -108,7 +134,11 @@ class _AdminHomepageState extends State<AdminHomepage>
     setState(() {
       isloading = true;
     });
-    await FirebaseAuth.instance.signOut();
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (error) {
+      snackbar("Unable to logout");
+    }
     setState(() {
       isloading = false;
     });

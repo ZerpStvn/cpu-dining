@@ -249,7 +249,9 @@ class _AddToCartViewState extends State<AddToCartView> {
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            subtitle: const Text("Pay the exact amount"),
+                            subtitle: total == 0
+                                ? const Text("No available item in the cart")
+                                : const Text("Pay the exact amount"),
                             trailing: const Icon(Icons.check_circle_outline),
                           ),
                         ),
@@ -262,19 +264,25 @@ class _AddToCartViewState extends State<AddToCartView> {
                               backgroundColor: Colors.amber,
                             ),
                             onPressed: () {
-                              if (ischeckedout == false) {
+                              if (total != 0) {
                                 setState(() {
                                   ischeckedout = true;
                                 });
                               }
                             },
-                            child: const MainText(
-                              title: "Purchase",
-                              size: 12,
-                              color: Color.fromARGB(255, 20, 15, 15),
-                            ),
+                            child: total != 0
+                                ? const MainText(
+                                    title: "Purchase",
+                                    size: 12,
+                                    color: Color.fromARGB(255, 20, 15, 15),
+                                  )
+                                : const MainText(
+                                    title: "No Item available",
+                                    size: 12,
+                                    color: Color.fromARGB(255, 20, 15, 15),
+                                  ),
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),

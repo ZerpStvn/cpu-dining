@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cpudining/components/component/ListOrder.user.dart';
 import 'package:cpudining/components/component/listview.item.dart';
 import 'package:cpudining/model/product.class.dart';
@@ -37,14 +39,30 @@ class _HomepgeState extends State<Homepge> {
             ),
           ),
           actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AddToCartView()));
-                },
-                icon: const Icon(Icons.local_grocery_store_rounded)),
+            Stack(
+              children: [
+                IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const AddToCartView()));
+                    },
+                    icon: const Icon(Icons.local_grocery_store_rounded)),
+                StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection('cart')
+                        .where("userID", isEqualTo: currentuser.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Text("0");
+                      } else {
+                        return Text("${snapshot.data!.docs.length}");
+                      }
+                    })
+              ],
+            ),
             IconButton(
                 onPressed: () {
                   Navigator.push(
@@ -103,6 +121,21 @@ class _HomepgeState extends State<Homepge> {
     onRefreshitem();
     super.initState();
   }
+
+  // Future<void> oncart() async {
+  //   final cartData = await FirebaseFirestore.instance
+  //       .collection('cart')
+  //       .where("userID", isEqualTo: currentuser.uid)
+  //       .get();
+
+  //   if (mounted) {
+  //     setState(() {
+  //       cartnum = cartData.docs.length;
+  //     });
+  //   } else {
+  //     dispose();
+  //   }
+  // }
 
   Future onRefreshitem() async {
     final data = await FirebaseFirestore.instance.collection('Products').get();

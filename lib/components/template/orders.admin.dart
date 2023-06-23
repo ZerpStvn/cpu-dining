@@ -24,31 +24,6 @@ class _OrdersAdminState extends State<OrdersAdmin> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        getOrders();
-                      });
-                    },
-                    icon: const Icon(Icons.refresh),
-                  ),
-                  const Text("Refresh"),
-                ],
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.sort),
-              ),
-            ],
-          ),
-        ),
-        Padding(
           padding: const EdgeInsets.all(10.0),
           child: ListView.builder(
             physics: const NeverScrollableScrollPhysics(),

@@ -37,18 +37,21 @@ class _ViewOrderAdminState extends State<ViewOrderAdmin> {
 
     List<Map<String, dynamic>> checkoutItems =
         List<Map<String, dynamic>>.from(data['items']);
+    if (data.exists) {
+      if (checkoutItems.isNotEmpty) {
+        double caltotal = 0;
 
-    if (checkoutItems.isNotEmpty) {
-      double caltotal = 0;
+        for (var item in checkoutItems) {
+          double totalPrice = item['totalprice'] as double;
+          caltotal += totalPrice;
+        }
 
-      for (var item in checkoutItems) {
-        double totalPrice = item['totalprice'] as double;
-        caltotal += totalPrice;
+        setState(() {
+          total = caltotal;
+        });
       }
-
-      setState(() {
-        total = caltotal;
-      });
+    } else {
+      return snackbar("no data");
     }
   }
 
@@ -100,8 +103,8 @@ class _ViewOrderAdminState extends State<ViewOrderAdmin> {
     for (var item in data) {
       await orderDeliveredCollection
           .add(item)
-          .then((value) => delete())
-          .then((value) => snackbar("Item delivered to the customer"));
+          .then((value) => snackbar("Item delivered to the customer"))
+          .then((value) => delete());
     }
   }
 

@@ -29,12 +29,12 @@ class _ProductEditState extends State<ProductEdit> {
 
   @override
   void dispose() {
+    super.dispose();
     productname.dispose();
     price.dispose();
     quantity.dispose();
     quantity.dispose();
     description.dispose();
-    super.dispose();
   }
 
   @override
