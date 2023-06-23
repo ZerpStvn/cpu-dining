@@ -67,41 +67,6 @@ class _ProductEditState extends State<ProductEdit> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // isupdate
-                    //     ? const Center(
-                    //         child: CircularProgressIndicator(
-                    //           backgroundColor: Colors.transparent,
-                    //           color: Colors.amber,
-                    //         ),
-                    //       )
-                    //     : ElevatedButton(
-                    //         style: ElevatedButton.styleFrom(
-                    //             elevation: 10, backgroundColor: Colors.amber),
-                    //         onPressed: () {
-                    //           setState(() async {
-                    //             isupdate = true;
-                    //             widget.prd.orderstatus == true
-                    //                 ? await FirebaseFirestore.instance
-                    //                     .collection('Products')
-                    //                     .doc('${widget.prd.prdID}')
-                    //                     .update({"orderstatus": false})
-                    //                 : await FirebaseFirestore.instance
-                    //                     .collection('Products')
-                    //                     .doc('${widget.prd.prdID}')
-                    //                     .update({"orderstatus": true});
-                    //           });
-
-                    //           setState(() {
-                    //             isupdate = false;
-                    //           });
-                    //         },
-                    //         child: MainText(
-                    //             title: widget.prd.orderstatus == true
-                    //                 ? "Mark not Available"
-                    //                 : "Mark Available",
-                    //             size: 12,
-                    //             color: Colors.white),
-                    //       ),
                     const SizedBox(
                       height: 20,
                     ),
@@ -277,24 +242,33 @@ class _ProductEditState extends State<ProductEdit> {
             }));
   }
 
+  snackbar(String? title) {
+    final snack = SnackBar(content: Text(title!));
+    ScaffoldMessenger.of(context).showSnackBar(snack);
+  }
+
   void update() async {
     setState(() {
       isloading = true;
     });
-    Products prds = Products();
-    prds.name = productname.text;
-    prds.price = double.parse(price.text);
-    prds.quantity = int.parse(quantity.text);
-    prds.description = description.text;
-    prds.imagelink = "${widget.prd.imagelink}";
-    prds.orderstatus = true;
-    prds.prdID = "${widget.prd.prdID}";
-    await FirebaseFirestore.instance
-        .collection('Products')
-        .doc("${widget.prd.prdID}")
-        .update(prds.tomap())
-        .then((value) => setState(() {
-              isloading = false;
-            }));
+    try {
+      Products prds = Products();
+      prds.name = productname.text;
+      prds.price = double.parse(price.text);
+      prds.quantity = int.parse(quantity.text);
+      prds.description = description.text;
+      prds.imagelink = "${widget.prd.imagelink}";
+      prds.orderstatus = true;
+      prds.prdID = "${widget.prd.prdID}";
+      await FirebaseFirestore.instance
+          .collection('Products')
+          .doc("${widget.prd.prdID}")
+          .update(prds.tomap())
+          .then((value) => setState(() {
+                isloading = false;
+              }));
+    } catch (error) {
+      snackbar("error updating the item");
+    }
   }
 }

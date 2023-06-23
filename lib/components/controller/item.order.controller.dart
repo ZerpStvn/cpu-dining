@@ -304,7 +304,7 @@ class _ItemControllerState extends State<ItemController> {
           .set(crt.tomap())
           .then((value) => snackbar("Item Added"));
     } catch (error) {
-      debugPrint("$error");
+      snackbar("Unable to add the item");
     }
   }
 
@@ -314,7 +314,6 @@ class _ItemControllerState extends State<ItemController> {
         .collection('checkout')
         .doc(currentuser.uid)
         .get();
-
     if (docs.exists) {
       snackbar("You still have pending orders");
     } else {

@@ -217,34 +217,38 @@ class _CheckedOutState extends State<CheckedOut> {
     Orders ord = Orders();
     List<Map<String, dynamic>> checkoutDocs = [];
 
-    ord.prdID = "${widget.prd.prdID}";
-    ord.ordersID = uniqID;
-    ord.userID = "${currentuser.uid}";
-    ord.name = "${widget.prd.name}";
-    ord.totalprice = double.parse("${widget.totalprice}");
-    ord.imagelink = "${widget.prd.imagelink}";
-    ord.quantity = int.parse("${widget.qnty}");
-    ord.description = "${widget.prd.description}";
-    ord.payementType = "Over the Counter";
-    ord.onaccept = false;
-    checkoutDocs.add(ord.tomap());
+    try {
+      ord.prdID = "${widget.prd.prdID}";
+      ord.ordersID = uniqID;
+      ord.userID = "${currentuser.uid}";
+      ord.name = "${widget.prd.name}";
+      ord.totalprice = double.parse("${widget.totalprice}");
+      ord.imagelink = "${widget.prd.imagelink}";
+      ord.quantity = int.parse("${widget.qnty}");
+      ord.description = "${widget.prd.description}";
+      ord.payementType = "Over the Counter";
+      ord.onaccept = false;
+      checkoutDocs.add(ord.tomap());
 
-    // Store the checkout docs in Firestore
-    await FirebaseFirestore.instance
-        .collection('checkout')
-        .doc(currentuser.uid)
-        .set({
-      'name': currentuser.username,
-      'school ID': currentuser.userschID,
-      'userID': currentuser.uid,
-      'total': widget.totalprice,
-      'items': checkoutDocs
-    }).then((value) => snackbar("item checkout"));
-    setState(() {
-      isloading = false;
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const QRgenerator()));
-    });
+      // Store the checkout docs in Firestore
+      await FirebaseFirestore.instance
+          .collection('checkout')
+          .doc(currentuser.uid)
+          .set({
+        'name': currentuser.username,
+        'school ID': currentuser.userschID,
+        'userID': currentuser.uid,
+        'total': widget.totalprice,
+        'items': checkoutDocs
+      }).then((value) => snackbar("item checkout"));
+      setState(() {
+        isloading = false;
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const QRgenerator()));
+      });
+    } catch (error) {
+      snackbar("unable to checkout");
+    }
   }
   //
 }

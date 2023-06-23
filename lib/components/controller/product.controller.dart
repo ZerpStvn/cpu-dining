@@ -249,25 +249,29 @@ class _OrdersFormState extends State<OrdersForm> {
       setState(() {
         isloading = true;
       });
-      String photourl = await uploadImage();
-      Products prd = Products();
-      prd.prdID = uniqID;
-      prd.name = productname.text;
-      prd.price = double.parse(price.text);
-      prd.quantity = int.parse(quantity.text);
-      prd.description = description.text;
-      prd.imagelink = photourl;
-      prd.orderstatus = true;
-      debugPrint(photourl);
-      await FirebaseFirestore.instance
-          .collection('Products')
-          .doc(uniqID)
-          .set(prd.tomap())
-          .then((value) => setState(() {
-                snackbar("New Product Added");
-                uniqID;
-                isloading = false;
-              }));
+      try {
+        String photourl = await uploadImage();
+        Products prd = Products();
+        prd.prdID = uniqID;
+        prd.name = productname.text;
+        prd.price = double.parse(price.text);
+        prd.quantity = int.parse(quantity.text);
+        prd.description = description.text;
+        prd.imagelink = photourl;
+        prd.orderstatus = true;
+        debugPrint(photourl);
+        await FirebaseFirestore.instance
+            .collection('Products')
+            .doc(uniqID)
+            .set(prd.tomap())
+            .then((value) => setState(() {
+                  snackbar("New Product Added");
+                  uniqID;
+                  isloading = false;
+                }));
+      } catch (error) {
+        snackbar("Can't add product right now");
+      }
     }
   }
 }

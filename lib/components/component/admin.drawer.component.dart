@@ -22,14 +22,6 @@ class AdminDrawerComponent extends StatelessWidget {
             height: 20,
           ),
           ListTile(
-            onTap: () {
-              // currentuser.userrole == 0
-              //     ? Navigator.push(
-              //         context,
-              //         MaterialPageRoute(
-              //             builder: (context) => const OrderPage()))
-              //     : null;
-            },
             title: MainText(
                 title: currentuser.userrole == 1 ? "Check Orders" : "Orders",
                 size: 15,

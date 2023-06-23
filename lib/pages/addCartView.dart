@@ -346,49 +346,53 @@ class _AddToCartViewState extends State<AddToCartView> {
         .where('userID', isEqualTo: currentuser.uid)
         .get();
     Orders ord = Orders();
-    if (snapshot.docs.isNotEmpty) {
-      List<Map<String, dynamic>> checkoutDocs = [];
+    try {
+      if (snapshot.docs.isNotEmpty) {
+        List<Map<String, dynamic>> checkoutDocs = [];
 
-      for (var doc in snapshot.docs) {
-        AddtoCart crt = AddtoCart.fromdocument(doc.data());
-        ord.prdID = crt.prdID;
-        ord.ordersID = crt.cartsID;
-        ord.userID = crt.userID;
-        ord.name = crt.name;
-        ord.totalprice = total;
-        ord.quantity = crt.quantity;
-        ord.description = crt.description;
-        ord.payementType = "Over The Counter";
-        ord.imagelink = crt.imagelink;
-        ord.onaccept = false;
-        checkoutDocs.add(ord.tomap());
+        for (var doc in snapshot.docs) {
+          AddtoCart crt = AddtoCart.fromdocument(doc.data());
+          ord.prdID = crt.prdID;
+          ord.ordersID = crt.cartsID;
+          ord.userID = crt.userID;
+          ord.name = crt.name;
+          ord.totalprice = total;
+          ord.quantity = crt.quantity;
+          ord.description = crt.description;
+          ord.payementType = "Over The Counter";
+          ord.imagelink = crt.imagelink;
+          ord.onaccept = false;
+          checkoutDocs.add(ord.tomap());
+        }
+
+        // Store the checkout docs in Firestore
+        await FirebaseFirestore.instance
+            .collection('checkout')
+            .doc(currentuser.uid)
+            .set({
+          'name': currentuser.username,
+          'school ID': currentuser.userschID,
+          'userID': currentuser.uid,
+          'total': total,
+          'items': checkoutDocs
+        });
+
+        // Clear the cart after successful checkout
+        for (var doc in snapshot.docs) {
+          await doc.reference.delete();
+          setState(() {});
+        }
+        setState(() {
+          isloading = false;
+          ischeckedout = false;
+          //
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const QRgenerator()));
+        });
+        // Show a success message or navigate to a success screen
       }
-
-      // Store the checkout docs in Firestore
-      await FirebaseFirestore.instance
-          .collection('checkout')
-          .doc(currentuser.uid)
-          .set({
-        'name': currentuser.username,
-        'school ID': currentuser.userschID,
-        'userID': currentuser.uid,
-        'total': total,
-        'items': checkoutDocs
-      });
-
-      // Clear the cart after successful checkout
-      for (var doc in snapshot.docs) {
-        await doc.reference.delete();
-        setState(() {});
-      }
-      setState(() {
-        isloading = false;
-        ischeckedout = false;
-        //
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const QRgenerator()));
-      });
-      // Show a success message or navigate to a success screen
+    } catch (error) {
+      snackbar("Unable to add please try again later");
     }
   }
 }
