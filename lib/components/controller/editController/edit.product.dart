@@ -268,7 +268,7 @@ class _ProductEditState extends State<ProductEdit> {
                 isloading = false;
               }));
     } catch (error) {
-      snackbar("error updating the item");
+      debugPrint("$error");
     }
   }
 }

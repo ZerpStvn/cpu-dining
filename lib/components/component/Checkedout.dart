@@ -247,7 +247,7 @@ class _CheckedOutState extends State<CheckedOut> {
             MaterialPageRoute(builder: (context) => const QRgenerator()));
       });
     } catch (error) {
-      snackbar("unable to checkout");
+      debugPrint("$error");
     }
   }
   //

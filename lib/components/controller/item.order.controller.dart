@@ -289,22 +289,23 @@ class _ItemControllerState extends State<ItemController> {
   void addToCart() async {
     String uniqID = const Uuid().v4();
     final cartcolllection = FirebaseFirestore.instance.collection('cart');
-    AddtoCart crt = AddtoCart();
-    crt.prdID = widget.prd.prdID;
-    crt.cartsID = uniqID;
-    crt.userID = currentuser.uid;
-    crt.name = widget.prd.name;
-    crt.totalprice = totalprice;
-    crt.quantity = qnty;
-    crt.description = widget.prd.description;
-    crt.imagelink = widget.prd.imagelink;
     try {
+      AddtoCart crt = AddtoCart();
+      crt.prdID = widget.prd.prdID;
+      crt.cartsID = uniqID;
+      crt.userID = currentuser.uid;
+      crt.name = widget.prd.name;
+      crt.totalprice = totalprice;
+      crt.quantity = qnty;
+      crt.description = widget.prd.description;
+      crt.imagelink = widget.prd.imagelink;
+
       await cartcolllection
           .doc(uniqID)
           .set(crt.tomap())
           .then((value) => snackbar("Item Added"));
     } catch (error) {
-      snackbar("Unable to add the item");
+      debugPrint("$error");
     }
   }
 

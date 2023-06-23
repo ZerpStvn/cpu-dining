@@ -270,7 +270,7 @@ class _OrdersFormState extends State<OrdersForm> {
                   isloading = false;
                 }));
       } catch (error) {
-        snackbar("Can't add product right now");
+        debugPrint("$error");
       }
     }
   }

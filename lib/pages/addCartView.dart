@@ -392,7 +392,7 @@ class _AddToCartViewState extends State<AddToCartView> {
         // Show a success message or navigate to a success screen
       }
     } catch (error) {
-      snackbar("Unable to add please try again later");
+      debugPrint("$error");
     }
   }
 }

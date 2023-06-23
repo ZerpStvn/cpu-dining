@@ -122,10 +122,11 @@ class _AdminHomepageState extends State<AdminHomepage>
 
   Future getOrders() async {
     try {
-      await FirebaseFirestore.instance.collection('orders').get();
-      await FirebaseFirestore.instance.collection('products').get();
+      await FirebaseFirestore.instance.collection('checkout').get();
+      await FirebaseFirestore.instance.collection('Products').get();
+      setState(() {});
     } catch (error) {
-      return "to items exixt";
+      return "No Item exist";
     }
   }
 

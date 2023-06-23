@@ -103,8 +103,8 @@ class _ViewOrderAdminState extends State<ViewOrderAdmin> {
     for (var item in data) {
       await orderDeliveredCollection
           .add(item)
-          .then((value) => snackbar("Item delivered to the customer"))
-          .then((value) => delete());
+          .then((value) => delete())
+          .then((value) => snackbar("Item delivered to the customer"));
     }
   }
 
