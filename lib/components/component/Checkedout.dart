@@ -224,7 +224,17 @@ class _CheckedOutState extends State<CheckedOut> {
                         child: const Text("Cancel")),
                     TextButton(
                         onPressed: () {
-                          checkout();
+                          if (paymenttpye == "CPU E-wallet") {
+                            if (currentuser.topup! < widget.totalprice) {
+                              debugPrint("${currentuser.topup}");
+                              snackbar("you don't have enough balance");
+                            } else {
+                              checkout();
+                            }
+                          } else {
+                            checkout();
+                          }
+                          Navigator.pop(context);
                         },
                         child: const Text("Confirm")),
                   ],
@@ -233,7 +243,6 @@ class _CheckedOutState extends State<CheckedOut> {
   }
 
   void updateBuyingTotal() async {
-    snackbar("you don't have enough balance");
     final total = currentuser.topup;
     final buytotal = widget.totalprice;
     final overalltotal = total! - buytotal;
@@ -283,7 +292,8 @@ class _CheckedOutState extends State<CheckedOut> {
             'items': checkoutDocs
           })
           .then((value) => snackbar("item checkout"))
-          .then((value) => updateBuyingTotal());
+          .then((value) =>
+              paymenttpye == "CPU E-wallet" ? updateBuyingTotal() : null);
       setState(() {
         isloading = false;
         Navigator.push(context,

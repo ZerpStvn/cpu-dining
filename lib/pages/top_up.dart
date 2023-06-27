@@ -1,5 +1,7 @@
 import 'package:cpudining/packages/exports.dart';
 
+import '../components/controller/topup.dart';
+
 class TopUpView extends StatefulWidget {
   const TopUpView({super.key});
 
@@ -56,7 +58,12 @@ class _TopUpViewState extends State<TopUpView> {
               ],
             ),
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const TopUpController()));
+                },
                 icon: Icon(
                   Icons.credit_score_rounded,
                   color: Colors.white,

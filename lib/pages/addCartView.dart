@@ -421,7 +421,8 @@ class _AddToCartViewState extends State<AddToCartView> {
           'userID': currentuser.uid,
           'total': total,
           'items': checkoutDocs
-        }).then((value) => updateBuyingTotal());
+        }).then((value) =>
+                paytype == "CPU E-wallet" ? updateBuyingTotal() : null);
 
         // Clear the cart after successful checkout
         for (var doc in snapshot.docs) {

@@ -25,7 +25,7 @@ class _OrderPageState extends State<OrderPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        actions: const [
+        actions: [
           Padding(
             padding: EdgeInsets.only(right: 8.0),
             child: Icon(Icons.sort),
@@ -164,7 +164,7 @@ class _OrderPageState extends State<OrderPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text("Cancel ORder"),
+            title: const Text("Cancel Order"),
             content: const MainText(
                 title: "Are you sure you want to cancel your order?",
                 size: 12,

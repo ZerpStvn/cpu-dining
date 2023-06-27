@@ -244,15 +244,10 @@ class _ItemControllerState extends State<ItemController> {
                           style: ElevatedButton.styleFrom(
                               elevation: 10, backgroundColor: Colors.amber),
                           onPressed: () {
-                            if (currentuser.topup! < totalprice!) {
-                              debugPrint("${currentuser.topup}");
-                              snackbar("you don't have enough balance");
+                            if (qnty == 0) {
+                              snackbar("Add quantity to your order");
                             } else {
-                              if (qnty == 0) {
-                                snackbar("Add quantity to your order");
-                              } else {
-                                check();
-                              }
+                              check();
                             }
                           },
                           child: const MainText(
