@@ -25,7 +25,7 @@ class _OrderPageState extends State<OrderPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        actions: [
+        actions: const [
           Padding(
             padding: EdgeInsets.only(right: 8.0),
             child: Icon(Icons.sort),
