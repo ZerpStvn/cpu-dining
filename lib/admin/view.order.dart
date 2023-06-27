@@ -88,7 +88,7 @@ class _ViewOrderAdminState extends State<ViewOrderAdmin> {
     }
   }
 
-  Future<void> delete() async {
+  void delete() async {
     await FirebaseFirestore.instance
         .collection('checkout')
         .doc(widget.userid)

@@ -7,7 +7,9 @@ class UsersClass {
   String? useremail;
   String? userpassword;
   int? userrole;
+  int? topup;
   UsersClass({
+    this.topup,
     this.uid,
     this.username,
     this.userschID,
@@ -19,7 +21,17 @@ class UsersClass {
   });
 
   factory UsersClass.fromDucoments(map) {
+    final dynamic topupValue = map['topup'];
+    int? parsedTopup;
+
+    if (topupValue is int) {
+      parsedTopup = topupValue;
+    } else if (topupValue is double) {
+      parsedTopup = topupValue.toInt();
+    }
+    ;
     return UsersClass(
+      topup: parsedTopup,
       uid: map['uid'],
       username: map['username'],
       userschID: map['userschID'],
@@ -34,6 +46,7 @@ class UsersClass {
   Map<String, dynamic> tomap() {
     return {
       'uid': uid,
+      'topup': 10000.0,
       'username': username,
       'userschID': userschID,
       'userdepartment': userdepartment,

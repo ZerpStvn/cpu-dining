@@ -6,6 +6,7 @@ import 'package:cpudining/model/product.class.dart';
 import 'package:cpudining/packages/exports.dart';
 import 'package:cpudining/pages/addCartView.dart';
 import 'package:cpudining/pages/orders.page.dart';
+import 'package:cpudining/pages/top_up.dart';
 
 class Homepge extends StatefulWidget {
   const Homepge({super.key});
@@ -92,6 +93,10 @@ class _HomepgeState extends State<Homepge> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  TopUpView(),
+                  const SizedBox(
+                    height: 29,
+                  ),
                   const ListViewItems(),
                   const SizedBox(
                     height: 10,

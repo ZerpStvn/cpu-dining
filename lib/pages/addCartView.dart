@@ -16,6 +16,7 @@ class _AddToCartViewState extends State<AddToCartView> {
   bool ischeckedout = false;
   bool ischecked = false;
   bool isloading = false;
+  String? paytype;
 
   @override
   void initState() {
@@ -119,7 +120,7 @@ class _AddToCartViewState extends State<AddToCartView> {
                 ListTile(
                   onTap: () {
                     setState(() {
-                      ischecked = !ischecked;
+                      paytype = "Over the Counter";
                     });
                   },
                   title: const MainText(
@@ -130,7 +131,29 @@ class _AddToCartViewState extends State<AddToCartView> {
                     Icons.credit_card_rounded,
                     size: 34,
                   ),
-                  trailing: ischecked
+                  trailing: paytype == "Over the Counter"
+                      ? const Icon(
+                          Icons.check_circle_outline_rounded,
+                          color: Colors.green,
+                          size: 13,
+                        )
+                      : const Text(""),
+                ),
+                ListTile(
+                  onTap: () {
+                    setState(() {
+                      paytype = "CPU E-wallet";
+                    });
+                  },
+                  title: const MainText(
+                      title: "CPU E-wallet", size: 14, color: Colors.black),
+                  subtitle: const MainText(
+                      title: "Available", size: 10, color: Colors.grey),
+                  leading: const Icon(
+                    Icons.credit_card_rounded,
+                    size: 34,
+                  ),
+                  trailing: paytype == "CPU E-wallet"
                       ? const Icon(
                           Icons.check_circle_outline_rounded,
                           color: Colors.green,
@@ -139,7 +162,7 @@ class _AddToCartViewState extends State<AddToCartView> {
                       : const Text(""),
                 ),
                 const SizedBox(
-                  height: 140,
+                  height: 50,
                 ),
                 Center(
                   child: SizedBox(
@@ -149,7 +172,7 @@ class _AddToCartViewState extends State<AddToCartView> {
                       style: ElevatedButton.styleFrom(
                           elevation: 10, backgroundColor: Colors.amber),
                       onPressed: () {
-                        ischecked
+                        paytype != null
                             ? showModal()
                             : snackbar("Select payment option");
                       },
@@ -207,7 +230,7 @@ class _AddToCartViewState extends State<AddToCartView> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text("Php ${crt.totalprice}.00"),
+                                          Text("Php ${crt.totalprice}0"),
                                           Text("Quantity: ${crt.quantity}"),
                                         ]),
                                     leading: Container(
@@ -264,10 +287,14 @@ class _AddToCartViewState extends State<AddToCartView> {
                               backgroundColor: Colors.amber,
                             ),
                             onPressed: () {
-                              if (total != 0) {
-                                setState(() {
-                                  ischeckedout = true;
-                                });
+                              if (currentuser.topup! < total) {
+                                snackbar("you don't have enough balance");
+                              } else {
+                                if (total != 0) {
+                                  setState(() {
+                                    ischeckedout = true;
+                                  });
+                                }
                               }
                             },
                             child: total != 0
@@ -312,11 +339,29 @@ class _AddToCartViewState extends State<AddToCartView> {
                     TextButton(
                         onPressed: () {
                           isloading ? null : check();
+                          Navigator.pop(context);
                         },
                         child: const Text("Confirm")),
                   ],
                 );
         });
+  }
+
+  void updateBuyingTotal() async {
+    final toptotal = currentuser.topup;
+    final buytotal = total;
+    final overalltotal = toptotal! - buytotal;
+    debugPrint("$overalltotal");
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('student')
+          .doc(currentuser.uid)
+          .update({'topup': overalltotal}).then(
+              (value) => debugPrint("Balance updated"));
+    } catch (error) {
+      debugPrint("$error");
+    }
   }
 
   void deleteItem(id) async {
@@ -356,10 +401,10 @@ class _AddToCartViewState extends State<AddToCartView> {
           ord.ordersID = crt.cartsID;
           ord.userID = crt.userID;
           ord.name = crt.name;
-          ord.totalprice = total;
+          ord.totalprice = crt.totalprice;
           ord.quantity = crt.quantity;
           ord.description = crt.description;
-          ord.payementType = "Over The Counter";
+          ord.payementType = paytype;
           ord.imagelink = crt.imagelink;
           ord.onaccept = false;
           checkoutDocs.add(ord.tomap());
@@ -371,11 +416,12 @@ class _AddToCartViewState extends State<AddToCartView> {
             .doc(currentuser.uid)
             .set({
           'name': currentuser.username,
+          'paytype': paytype,
           'school ID': currentuser.userschID,
           'userID': currentuser.uid,
           'total': total,
           'items': checkoutDocs
-        });
+        }).then((value) => updateBuyingTotal());
 
         // Clear the cart after successful checkout
         for (var doc in snapshot.docs) {

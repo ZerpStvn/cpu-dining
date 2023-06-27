@@ -23,6 +23,7 @@ class _CheckedOutState extends State<CheckedOut> {
   String uniqID = const Uuid().v4();
   bool isloading = false;
   bool ischecked = false;
+  String? paymenttpye;
 
   snackbar(String? title) {
     final snack = SnackBar(content: Text(title!));
@@ -138,7 +139,7 @@ class _CheckedOutState extends State<CheckedOut> {
               ListTile(
                 onTap: () {
                   setState(() {
-                    ischecked = !ischecked;
+                    paymenttpye = "Over the Counter";
                   });
                 },
                 title: const MainText(
@@ -149,7 +150,29 @@ class _CheckedOutState extends State<CheckedOut> {
                   Icons.credit_card_rounded,
                   size: 34,
                 ),
-                trailing: ischecked
+                trailing: paymenttpye == "Over the Counter"
+                    ? const Icon(
+                        Icons.check_circle_outline_rounded,
+                        color: Colors.green,
+                        size: 13,
+                      )
+                    : const Text(""),
+              ),
+              ListTile(
+                onTap: () {
+                  setState(() {
+                    paymenttpye = "CPU E-wallet";
+                  });
+                },
+                title: const MainText(
+                    title: "CPU E-wallet", size: 14, color: Colors.black),
+                subtitle: const MainText(
+                    title: "Available", size: 10, color: Colors.grey),
+                leading: const Icon(
+                  Icons.credit_card_rounded,
+                  size: 34,
+                ),
+                trailing: paymenttpye == "CPU E-wallet"
                     ? const Icon(
                         Icons.check_circle_outline_rounded,
                         color: Colors.green,
@@ -158,7 +181,7 @@ class _CheckedOutState extends State<CheckedOut> {
                     : const Text(""),
               ),
               const SizedBox(
-                height: 140,
+                height: 50,
               ),
               Center(
                 child: SizedBox(
@@ -168,7 +191,7 @@ class _CheckedOutState extends State<CheckedOut> {
                     style: ElevatedButton.styleFrom(
                         elevation: 10, backgroundColor: Colors.amber),
                     onPressed: () {
-                      ischecked
+                      paymenttpye != null
                           ? showModal()
                           : snackbar("Select payment option");
                     },
@@ -209,6 +232,24 @@ class _CheckedOutState extends State<CheckedOut> {
         });
   }
 
+  void updateBuyingTotal() async {
+    snackbar("you don't have enough balance");
+    final total = currentuser.topup;
+    final buytotal = widget.totalprice;
+    final overalltotal = total! - buytotal;
+    debugPrint("$overalltotal");
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('student')
+          .doc(currentuser.uid)
+          .update({'topup': overalltotal}).then(
+              (value) => debugPrint("Balance updated"));
+    } catch (error) {
+      debugPrint("$error");
+    }
+  }
+
   Future<void> checkout() async {
     setState(() {
       isloading = true;
@@ -226,7 +267,7 @@ class _CheckedOutState extends State<CheckedOut> {
       ord.imagelink = "${widget.prd.imagelink}";
       ord.quantity = int.parse("${widget.qnty}");
       ord.description = "${widget.prd.description}";
-      ord.payementType = "Over the Counter";
+      ord.payementType = paymenttpye;
       ord.onaccept = false;
       checkoutDocs.add(ord.tomap());
 
@@ -235,12 +276,14 @@ class _CheckedOutState extends State<CheckedOut> {
           .collection('checkout')
           .doc(currentuser.uid)
           .set({
-        'name': currentuser.username,
-        'school ID': currentuser.userschID,
-        'userID': currentuser.uid,
-        'total': widget.totalprice,
-        'items': checkoutDocs
-      }).then((value) => snackbar("item checkout"));
+            'name': currentuser.username,
+            'school ID': currentuser.userschID,
+            'userID': currentuser.uid,
+            'total': widget.totalprice,
+            'items': checkoutDocs
+          })
+          .then((value) => snackbar("item checkout"))
+          .then((value) => updateBuyingTotal());
       setState(() {
         isloading = false;
         Navigator.push(context,

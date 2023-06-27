@@ -11,9 +11,12 @@ class OrderPage extends StatefulWidget {
 class _OrderPageState extends State<OrderPage> {
   double total = 0;
   bool isclick = false;
+  bool exist = false;
+
   @override
   void initState() {
     checktotal();
+    check();
     super.initState();
   }
 
@@ -36,11 +39,11 @@ class _OrderPageState extends State<OrderPage> {
             Expanded(
               child: SingleChildScrollView(
                 scrollDirection: Axis.vertical,
-                child: FutureBuilder(
-                  future: FirebaseFirestore.instance
+                child: StreamBuilder(
+                  stream: FirebaseFirestore.instance
                       .collection('checkout')
                       .doc(currentuser.uid)
-                      .get(),
+                      .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
@@ -102,37 +105,112 @@ class _OrderPageState extends State<OrderPage> {
             Align(
                 alignment: Alignment.bottomCenter,
                 child: Card(
-                  child: ListTile(
-                    leading: QrImageView(
-                      data: '${currentuser.uid}',
-                      version: QrVersions.auto,
-                      size: 80,
-                      gapless: false,
-                      errorStateBuilder: (cxt, err) {
-                        return const Center(
-                          child: Text(
-                            'Uh oh! Something went wrong...',
-                            textAlign: TextAlign.center,
-                          ),
-                        );
-                      },
-                    ),
-                    trailing: const Icon(
-                      Icons.credit_card_rounded,
-                      size: 34,
-                    ),
-                    title: Text(
-                      "Php ${total}0",
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: const Text("Order is Preparing "),
+                  elevation: 0,
+                  child: Column(
+                    children: [
+                      exist
+                          ? SizedBox(
+                              height: 50,
+                              width: MediaQuery.of(context).size.width * 0.50,
+                              child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.amber),
+                                  onPressed: () {
+                                    showModal();
+                                  },
+                                  child: Text(
+                                    "Cancel Order",
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                            )
+                          : Container(),
+                      ListTile(
+                        leading: QrImageView(
+                          data: '${currentuser.uid}',
+                          version: QrVersions.auto,
+                          size: 80,
+                          gapless: false,
+                          errorStateBuilder: (cxt, err) {
+                            return const Center(
+                              child: Text(
+                                'Uh oh! Something went wrong...',
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          },
+                        ),
+                        trailing: const Icon(
+                          Icons.credit_card_rounded,
+                          size: 34,
+                        ),
+                        title: Text(
+                          "Php ${total}0",
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: const Text("Order is Preparing "),
+                      ),
+                    ],
                   ),
                 ))
           ],
         ),
       ),
     );
+  }
+
+  Future showModal() async {
+    await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Cancel ORder"),
+            content: const MainText(
+                title: "Are you sure you want to cancel your order?",
+                size: 12,
+                color: Colors.black),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("No")),
+              TextButton(
+                  onPressed: () {
+                    cancelorder();
+                    Navigator.pop(context);
+                    setState(() {});
+                  },
+                  child: const Text("Yes")),
+            ],
+          );
+        });
+  }
+
+  Future cancelorder() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('checkout')
+          .doc(currentuser.uid)
+          .delete()
+          .then((value) => debugPrint("order Cancel"));
+    } catch (error) {
+      debugPrint("${error}");
+    }
+  }
+
+  Future check() async {
+    DocumentSnapshot data = await FirebaseFirestore.instance
+        .collection('checkout')
+        .doc(currentuser.uid)
+        .get();
+    if (data.exists) {
+      setState(() {
+        exist = true;
+      });
+    } else {
+      setState(() {
+        exist = false;
+      });
+    }
   }
 
   Future<double> checktotal() async {
